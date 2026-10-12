@@ -5,6 +5,8 @@ import { STARTER_ROLES, STARTER_WORDS } from "../seed/starterData.js";
 
 const rooms = new Map<string, Room>();
 
+export const ROOM_IDLE_LIMIT_MS = 30 * 60 * 1000;
+
 function now() {
   return new Date().toISOString();
 }
@@ -128,6 +130,19 @@ export function startGame(code: string, participantId: string) {
   room.lastActiveAt = Date.now();
 
   return cloneRoom(room);
+}
+
+export function removeInactiveRooms(nowMs: number) {
+  let removed = 0;
+
+  for (const [code, room] of rooms) {
+    if (nowMs - room.lastActiveAt > ROOM_IDLE_LIMIT_MS) {
+      rooms.delete(code);
+      removed += 1;
+    }
+  }
+
+  return removed;
 }
 
 export function saveRoom(room: Room) {

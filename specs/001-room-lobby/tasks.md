@@ -122,9 +122,9 @@ Web app: `backend/src/`, `frontend/src/` (plan.md, Project Structure)
 
 **Independent test**: unit tests plus quickstart §3 row 8.
 
-- [ ] T024 [US5] Add `ROOM_IDLE_LIMIT_MS = 30 * 60 * 1000` and exported `removeInactiveRooms(now: number)` deleting rooms whose `lastActiveAt` is older than the limit, returning the number removed, in backend/src/services/roomStore.ts (FR-014, research R6)
-- [ ] T025 [P] [US5] Add tests in backend/src/services/roomStore.test.ts: a room idle for 30 min + 1 ms is removed and then joining it gives the 404 message; a room active within the limit is kept; joining or starting room R1 leaves room R2's participants, host and status unchanged (FR-013, FR-014)
-- [ ] T026 [US5] In backend/src/server.ts call `removeInactiveRooms(Date.now())` every 60 s with `setInterval(...).unref()`
+- [x] T024 [US5] Add `ROOM_IDLE_LIMIT_MS = 30 * 60 * 1000` and exported `removeInactiveRooms(now: number)` deleting rooms whose `lastActiveAt` is older than the limit, returning the number removed, in backend/src/services/roomStore.ts (FR-014, research R6)
+- [x] T025 [P] [US5] Add tests in backend/src/services/roomStore.test.ts: a room idle for 30 min + 1 ms is removed and then joining it gives the 404 message; a room active within the limit is kept; joining or starting room R1 leaves room R2's participants, host and status unchanged (FR-013, FR-014)
+- [x] T026 [US5] In backend/src/server.ts call `removeInactiveRooms(Date.now())` every 60 s with `setInterval(...).unref()`
 
 **Checkpoint**: all backend rule tests pass.
 

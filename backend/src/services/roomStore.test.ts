@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { createRoom, getRoom, joinRoom, saveRoom, startGame, toRoomSnapshot } from "./roomStore.js";
+import {
+  createRoom,
+  getRoom,
+  joinRoom,
+  removeInactiveRooms,
+  ROOM_IDLE_LIMIT_MS,
+  saveRoom,
+  startGame,
+  toRoomSnapshot
+} from "./roomStore.js";
 
 describe("roomStore", () => {
   it("createRoom returns a room with a 4-character uppercase code", () => {
@@ -91,5 +100,38 @@ describe("roomStore", () => {
     expect(() => startGame(host.room.code, host.participantId)).toThrow(
       "This game has already started."
     );
+  });
+
+  it("removeInactiveRooms removes a room idle for longer than 30 minutes", () => {
+    const host = createRoom("Alice");
+    const lastActiveAt = getRoom(host.room.code)!.lastActiveAt;
+
+    removeInactiveRooms(lastActiveAt + ROOM_IDLE_LIMIT_MS + 1);
+
+    expect(getRoom(host.room.code)).toBeNull();
+    expect(() => joinRoom(host.room.code, "Bob")).toThrow(
+      "Room not found. Check the code and try again."
+    );
+  });
+
+  it("removeInactiveRooms keeps a room active within the last 30 minutes", () => {
+    const host = createRoom("Alice");
+    const lastActiveAt = getRoom(host.room.code)!.lastActiveAt;
+
+    removeInactiveRooms(lastActiveAt + ROOM_IDLE_LIMIT_MS - 1000);
+
+    expect(getRoom(host.room.code)).not.toBeNull();
+  });
+
+  it("actions in one room leave another room unchanged", () => {
+    const first = createRoom("Alice");
+    const second = createRoom("Zed");
+    const before = toRoomSnapshot(getRoom(second.room.code)!);
+
+    joinRoom(first.room.code, "Bob");
+    startGame(first.room.code, first.participantId);
+
+    expect(toRoomSnapshot(getRoom(second.room.code)!)).toEqual(before);
+    expect(getRoom(first.room.code)?.status).toBe("playing");
   });
 });
