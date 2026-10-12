@@ -137,7 +137,8 @@ There were no deviations from the scenarios or the constitution.
 - **Automated**: each feature was checked with `npm run build` and `npm test` in both apps.
 - **API checks**: every rule and refusal message was exercised with `curl` against a live
   backend.
-- **Browser checks**: two or three tabs per feature, with results recorded in each
-  `tasks.md`, plus regression checks of earlier features where code was shared.
+- **Browser checks**: two to four tabs per feature (four, across two rooms, for the final
+  end-to-end run), with results recorded in each `tasks.md`, plus regression checks of earlier
+  features where code was shared.
 - **PR checks**: the local `temp/run-pr-checks.sh` mirrors the four PR checks and runs on every
   push via the pre-push hook. On GitHub, CI passes for both apps.

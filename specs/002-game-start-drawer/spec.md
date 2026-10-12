@@ -159,7 +159,9 @@ same situation twice and confirm the same word both times.
   order rocket, pizza, castle, guitar, sunflower.
 - **FR-007**: The secret word MUST be included only in the view sent to the drawer. Views for
   any other participant, for an unknown participant id, or with no participant id MUST NOT
-  contain it.
+  contain it. *Amended by feature 004 (`specs/004-result-restart/spec.md`, FR-001; research R1):
+  this rule holds while the round is active; once the round has ended, the word is revealed to
+  every player as part of the result.*
 - **FR-008**: A room in the lobby MUST have no drawer and no secret word.
 - **FR-009**: Views sent to players MUST NOT include the list of candidate words (or the unused
   list of roles).

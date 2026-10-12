@@ -23,7 +23,7 @@ Extends feature 001's model (`specs/001-room-lobby/data-model.md`). Types live i
 | Field | Change | Notes |
 |---|---|---|
 | `drawerId` | **new** | `string \| null`; visible to everyone (FR-005) |
-| `secretWord` | **new, conditional** | present only when the viewer's `participantId === drawerId` (FR-007) |
+| `secretWord` | **new, conditional** | present only when the viewer's `participantId === drawerId` (FR-007); feature 004 also sends it to every viewer once the round has ended |
 | `availableWords` | **removed** | FR-009 |
 | `roles` | **removed** | FR-009 (unused) |
 | `code`, `status`, `hostId`, `participants` | unchanged | |

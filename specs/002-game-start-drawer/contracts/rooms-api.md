@@ -19,6 +19,7 @@ repeated.
 - `drawerId`: `null` while `status` is `"lobby"`.
 - `secretWord`: **only** present when the request's viewer (`participantId` in the create/join
   response, the start body, or the fetch query string) equals `drawerId`. Omitted otherwise.
+  *Amended by feature 004 (`specs/004-result-restart/contracts/rooms-api.md`): once `status` is `"ended"`, `secretWord` is sent to every viewer.*
 - `availableWords` and `roles` are no longer sent.
 
 ## POST /rooms and POST /rooms/:code/join — name validation
@@ -45,3 +46,5 @@ response includes `secretWord`.
 | an id not in the room | no |
 | no `participantId` | no |
 | anyone, room in lobby | no |
+
+*Amended by feature 004 (`specs/004-result-restart/contracts/rooms-api.md`): once `status` is `"ended"`, `secretWord` is sent to every viewer.*
