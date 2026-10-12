@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { createRoomSchema, joinRoomSchema, roomCodeParamsSchema, startGameSchema } from "./schemas.js";
+import {
+  createRoomSchema,
+  joinRoomSchema,
+  roomCodeParamsSchema,
+  startGameSchema,
+  submitGuessSchema
+} from "./schemas.js";
 
 describe("schemas", () => {
   it("createRoomSchema accepts a valid body with playerName", () => {
@@ -51,5 +57,22 @@ describe("schemas", () => {
         "Names can be at most 20 characters."
       );
     });
+  });
+
+  it.each([{ participantId: "p1" }, { participantId: "p1", text: "" }, { participantId: "p1", text: "   " }])(
+    "submitGuessSchema rejects %j with \"Enter a guess.\"",
+    (body) => {
+      expect(() => submitGuessSchema.parse(body)).toThrow("Enter a guess.");
+    }
+  );
+
+  it("submitGuessSchema trims the guess text", () => {
+    expect(submitGuessSchema.parse({ participantId: "p1", text: "  Pizza " }).text).toBe("Pizza");
+  });
+
+  it("submitGuessSchema requires a participant id", () => {
+    expect(() => submitGuessSchema.parse({ text: "pizza" })).toThrow(
+      "A participant id is required to guess."
+    );
   });
 });

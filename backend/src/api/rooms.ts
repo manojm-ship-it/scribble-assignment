@@ -5,9 +5,17 @@ import {
   joinRoomSchema,
   roomCodeParamsSchema,
   roomViewerQuerySchema,
-  startGameSchema
+  startGameSchema,
+  submitGuessSchema
 } from "./schemas.js";
-import { createRoom, getRoom, joinRoom, startGame, toRoomSnapshot } from "../services/roomStore.js";
+import {
+  createRoom,
+  getRoom,
+  joinRoom,
+  startGame,
+  submitGuess,
+  toRoomSnapshot
+} from "../services/roomStore.js";
 
 export function createRoomsRouter() {
   const router = Router();
@@ -46,6 +54,20 @@ export function createRoomsRouter() {
       const { code } = roomCodeParamsSchema.parse(request.params);
       const { participantId } = startGameSchema.parse(request.body);
       const room = startGame(code, participantId);
+
+      response.json({
+        room: toRoomSnapshot(room, participantId)
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post("/:code/guesses", (request, response, next) => {
+    try {
+      const { code } = roomCodeParamsSchema.parse(request.params);
+      const { participantId, text } = submitGuessSchema.parse(request.body);
+      const room = submitGuess(code, participantId, text);
 
       response.json({
         room: toRoomSnapshot(room, participantId)

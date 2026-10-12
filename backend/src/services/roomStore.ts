@@ -128,9 +128,60 @@ export function startGame(code: string, participantId: string) {
   }
 
   room.status = "playing";
+  room.participants = room.participants.map((participant) => ({ ...participant, score: 0 }));
+  room.guesses = [];
   room.drawerId = room.hostId;
   room.secretWord = selectSecretWord(room.code, room.gamesStarted);
   room.gamesStarted += 1;
+  room.updatedAt = now();
+  room.lastActiveAt = Date.now();
+
+  return cloneRoom(room);
+}
+
+export function submitGuess(code: string, participantId: string, text: string) {
+  const room = rooms.get(code);
+
+  if (!room) {
+    throw new HttpError(404, "This room is no longer available.");
+  }
+
+  if (room.status !== "playing" || !room.secretWord) {
+    throw new HttpError(409, "The round is not in progress.");
+  }
+
+  const guesser = room.participants.find((participant) => participant.id === participantId);
+
+  if (!guesser) {
+    throw new HttpError(403, "You are not a player in this room.");
+  }
+
+  if (participantId === room.drawerId) {
+    throw new HttpError(403, "The drawer cannot guess.");
+  }
+
+  const hasGuessedCorrectly = (id: string) =>
+    room.guesses.some((guess) => guess.participantId === id && guess.correct);
+
+  if (hasGuessedCorrectly(participantId)) {
+    throw new HttpError(409, "You already guessed the word.");
+  }
+
+  const correct = text.toLowerCase() === room.secretWord.toLowerCase();
+  room.guesses.push({ id: randomUUID(), participantId, text, correct, createdAt: now() });
+
+  if (correct) {
+    guesser.score += 100;
+  }
+
+  const everyGuesserCorrect = room.participants
+    .filter((participant) => participant.id !== room.drawerId)
+    .every((participant) => hasGuessedCorrectly(participant.id));
+
+  if (everyGuesserCorrect) {
+    room.status = "ended";
+  }
+
   room.updatedAt = now();
   room.lastActiveAt = Date.now();
 
