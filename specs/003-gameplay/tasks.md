@@ -29,8 +29,8 @@ No setup tasks.
 
 ## Phase 2: Foundational
 
-- [ ] T001 In backend/src/models/game.ts add `score: number` to `Participant`; add `Guess` (`id`, `participantId`, `text`, `correct`, `createdAt`) and `guesses: Guess[]` on `Room`; widen `RoomStatus` to `"lobby" | "playing" | "ended"`; add `GuessView` (`id`, `participantId`, `text: string | null`, `correct`) and `guesses: GuessView[]` on `RoomSnapshot`. In backend/src/services/roomStore.ts set `score: 0` in `createParticipant`, `guesses: []` in `createRoom`, and map `guesses` in `toRoomSnapshot` (data-model.md)
-- [ ] T002 [P] Mirror the type changes (`score`, `GuessView`, `guesses`, `"ended"`) in frontend/src/services/api.ts
+- [x] T001 In backend/src/models/game.ts add `score: number` to `Participant`; add `Guess` (`id`, `participantId`, `text`, `correct`, `createdAt`) and `guesses: Guess[]` on `Room`; widen `RoomStatus` to `"lobby" | "playing" | "ended"`; add `GuessView` (`id`, `participantId`, `text: string | null`, `correct`) and `guesses: GuessView[]` on `RoomSnapshot`. In backend/src/services/roomStore.ts set `score: 0` in `createParticipant`, `guesses: []` in `createRoom`, and map `guesses` in `toRoomSnapshot` (data-model.md)
+- [x] T002 [P] Mirror the type changes (`score`, `GuessView`, `guesses`, `"ended"`) in frontend/src/services/api.ts
 
 **Checkpoint**: both apps build; existing tests pass.
 

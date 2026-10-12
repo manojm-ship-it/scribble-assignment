@@ -47,6 +47,6 @@ correct guess and the text is revealed immediately.
 | 5 | B: submit an empty guess | "Enter a guess." | US2.1 |
 | 6 | B: submit a wrong guess | Within ~2 s, no clicks, A and C show "Ben: <guess>"; Ben still 0 | US2.2, US3.1–3.2 |
 | 7 | B: submit the word in mixed case with spaces | Ben 100 on all screens; A and C show "Ben guessed the word!" (no text); round continues | US2.3, US3.3 |
-| 8 | B: submit again | "You already guessed the word." | US2.5 |
+| 8 | B: view the guess form | Disabled (the API refusal "You already guessed the word." is checked in §2) | US2.5 |
 | 9 | C: submit the word | Cara 100; all screens show the round is over within ~2 s; history now shows the guessed text | US2.7, FR-014 |
 | 10 | A: view the guess form throughout | Disabled for the drawer | US2.4 |

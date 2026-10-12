@@ -2,15 +2,24 @@ export interface Participant {
   id: string;
   name: string;
   joinedAt: string;
+  score: number;
+}
+
+export interface GuessView {
+  id: string;
+  participantId: string;
+  text: string | null;
+  correct: boolean;
 }
 
 export interface RoomSnapshot {
   code: string;
-  status: "lobby" | "playing";
+  status: "lobby" | "playing" | "ended";
   hostId: string;
   drawerId: string | null;
   secretWord?: string;
   participants: Participant[];
+  guesses: GuessView[];
 }
 
 export interface RoomSessionResponse {
