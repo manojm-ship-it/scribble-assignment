@@ -42,10 +42,10 @@ No setup tasks: feature 001 established the structure and tooling.
 
 **Independent test**: quickstart §2 name calls; §3 rows 1–4.
 
-- [ ] T003 [US1] Add `playerNameSchema` to backend/src/api/schemas.ts: required with "Enter your name.", `.trim()`, `.min(1, "Enter your name.")`, `.max(20, "Names can be at most 20 characters.")`; use it for `playerName` in `createRoomSchema` and `joinRoomSchema` (FR-001–FR-003a)
-- [ ] T004 [P] [US1] Add tests in backend/src/api/schemas.test.ts: missing, `""` and `"   "` → "Enter your name."; `"  Ann  "` → `"Ann"`; 20 characters accepted; 21 → "Names can be at most 20 characters."; same for `joinRoomSchema`
-- [ ] T005 [US1] Remove the `displayName` "Player" fallback in backend/src/services/roomStore.ts and make `playerName` a required `string` in `createParticipant`, `createRoom` and `joinRoom` (research R2)
-- [ ] T006 [P] [US1] Update the unknown-room and late-join `curl` lines in specs/001-room-lobby/quickstart.md to send `{"playerName":"Guest"}` (research R7)
+- [x] T003 [US1] Add `playerNameSchema` to backend/src/api/schemas.ts: required with "Enter your name.", `.trim()`, `.min(1, "Enter your name.")`, `.max(20, "Names can be at most 20 characters.")`; use it for `playerName` in `createRoomSchema` and `joinRoomSchema` (FR-001–FR-003a)
+- [x] T004 [P] [US1] Add tests in backend/src/api/schemas.test.ts: missing, `""` and `"   "` → "Enter your name."; `"  Ann  "` → `"Ann"`; 20 characters accepted; 21 → "Names can be at most 20 characters."; same for `joinRoomSchema`
+- [x] T005 [US1] Remove the `displayName` "Player" fallback in backend/src/services/roomStore.ts and make `playerName` a required `string` in `createParticipant`, `createRoom` and `joinRoom` (research R2)
+- [x] T006 [P] [US1] Update the unknown-room and late-join `curl` lines in specs/001-room-lobby/quickstart.md to send `{"playerName":"Guest"}` (research R7)
 
 **Checkpoint**: blank and long names refused from the API and both forms.
 

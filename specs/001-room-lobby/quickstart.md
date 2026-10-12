@@ -26,7 +26,7 @@ B=http://localhost:3001; J='content-type: application/json'
 H=$(curl -s -X POST $B/rooms -H "$J" -d '{"playerName":"Host"}')
 CODE=$(echo "$H" | node -pe 'JSON.parse(require("fs").readFileSync(0)).room.code')
 HOST=$(echo "$H" | node -pe 'JSON.parse(require("fs").readFileSync(0)).participantId')
-curl -s -X POST $B/rooms/ZZZZ/join -H "$J" -d '{}'              # 404 Room not found…
+curl -s -X POST $B/rooms/ZZZZ/join -H "$J" -d '{"playerName":"Guest"}'   # 404 Room not found…
 curl -s -X POST $B/rooms/AB/join -H "$J" -d '{}'                # 400 Room codes are 4 letters…
 curl -s -X POST "$B/rooms/%20%20/join" -H "$J" -d '{}'          # 400 Enter a room code.
 curl -s -X POST $B/rooms/$CODE/start -H "$J" -d "{\"participantId\":\"$HOST\"}"   # 400 At least 2…
@@ -34,7 +34,7 @@ G=$(curl -s -X POST $B/rooms/$(echo $CODE | tr A-Z a-z)/join -H "$J" -d '{"playe
 GUEST=$(echo "$G" | node -pe 'JSON.parse(require("fs").readFileSync(0)).participantId')
 curl -s -X POST $B/rooms/$CODE/start -H "$J" -d "{\"participantId\":\"$GUEST\"}"  # 403 Only the host…
 curl -s -X POST $B/rooms/$CODE/start -H "$J" -d "{\"participantId\":\"$HOST\"}"   # 200 status playing
-curl -s -X POST $B/rooms/$CODE/join -H "$J" -d '{}'             # 409 already started
+curl -s -X POST $B/rooms/$CODE/join -H "$J" -d '{"playerName":"Late"}'   # 409 already started
 ```
 
 ## 3. Two-browser checks (normal window A + private window B)
