@@ -125,3 +125,19 @@ They are not in the app source; most likely injected by a browser extension. Not
 2. US2: restart closes the loop — the README's full working-game flow.
 3. US3: remove the bounce.
 4. Validate, push; pre-evaluation should report all four feature folders complete.
+
+### Final end-to-end check (README "working game flow", progress-tracker item 16)
+
+Run on 2026-10-12 from a freshly started backend, four tabs: room R1 `DDDH` (Ann host, Ben) and
+room R2 `PNYN` (Zed host, Yara) open at the same time.
+
+| Step | Result | Notes |
+|---|---|---|
+| Create R1 as Ann; Ben joins typing `dddh` | ✅ | Ben in R1's lobby (the form upper-cases as you type; server-side case-insensitivity is covered by feature 001's API check) |
+| Create R2 as Zed; Yara joins | ✅ | Each lobby lists only its own players |
+| Start is host-only | ✅ | Ann has Start; Ben sees "Waiting for the host to start the game." |
+| Ann starts R1 | ✅ | R1 tabs on `/game`; R2 tabs stay in their lobby |
+| Draw and clear | ✅ | Stroke drawn under the pointer; Clear empties the canvas |
+| Ben guesses `burger`, then `PIZZA` | ✅ | Wrong then correct (word `pizza` = rule prediction for DDDH) |
+| Shared result | ✅ | Both R1 tabs: "The word was pizza", Ben 100 / Ann 0, history "Ben: burger", "Ben: PIZZA ✓" |
+| Ann restarts R1; Zed starts R2 at the same time | ✅ | R1 tabs back in the lobby with Ann (host) and Ben; R2 in its own round with word `rocket` (rule prediction for PNYN), scores 0, no guesses |
