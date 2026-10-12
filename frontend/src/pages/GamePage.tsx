@@ -90,7 +90,11 @@ export function GamePage() {
           </Card>
 
           <Card title="Your Guess">
-            {roundOver ? <p className="status-line">Round over! Everyone guessed the word.</p> : null}
+            {roundOver ? (
+              <p>
+                <strong>Round over! Everyone guessed the word.</strong>
+              </p>
+            ) : null}
             {refreshError ? <p className="form__error">{refreshError}</p> : null}
             <GuessForm
               disabled={isDrawer || roundOver || hasGuessedCorrectly}
