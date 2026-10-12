@@ -89,13 +89,47 @@ No setup tasks.
 
 ## Phase 6: Polish & Validation
 
-- [ ] T021 Run quickstart §1–§2 and record results below
-- [ ] T022 Run quickstart §3 three-tab checks, plus feature 001 lobby polling rows 3 and 9 (regression for T013), and record results below
-- [ ] T023 Run `temp/run-pr-checks.sh`; record deviations in plan.md
+- [x] T021 Run quickstart §1–§2 and record results below
+- [x] T022 Run quickstart §3 three-tab checks, plus feature 001 lobby polling rows 3 and 9 (regression for T013), and record results below
+- [x] T023 Run `temp/run-pr-checks.sh`; record deviations in plan.md
 
 ## Validation Results
 
-_Filled in during T021–T023._
+Run on 2026-10-12, backend `localhost:3001`, frontend `localhost:5173`.
+
+### T021 — Automated and API checks (quickstart §1–§2; room `JGFP`, word `rocket`)
+
+| Check | Result |
+|---|---|
+| Backend build + tests | ✅ 60 tests pass |
+| Frontend build + tests | ✅ 6 tests pass |
+| Guess while in lobby | ✅ "The round is not in progress." |
+| Blank guess | ✅ "Enter a guess." |
+| Drawer guesses | ✅ "The drawer cannot guess." |
+| Unknown player | ✅ "You are not a player in this room." |
+| Ben wrong (`burger`) | ✅ recorded, all scores 0, text shown |
+| Ben `"  ROCKET "` | ✅ correct, Ben 100, still `playing`, text hidden (`null`) |
+| Ben repeats | ✅ "You already guessed the word." |
+| Cara's view mid-round | ✅ `[burger, null]` — correct text hidden |
+| Cara correct | ✅ Cara 100, status `ended`, texts revealed (`ROCKET`, `rocket`) |
+| Guess after end | ✅ "The round is not in progress." |
+
+### T022 — Three-tab checks (quickstart §3; room `ZX4N`, word `guitar` = rule prediction)
+
+| Row | Result | Notes |
+|---|---|---|
+| 1 Drawer draws | ✅ | Two crossing strokes rendered exactly under the pointer path |
+| 2 Clear, draw again | ✅ | Canvas blank after Clear; new stroke drawn |
+| 3 Guesser canvas area | ✅ | "Ann is drawing"; no canvas or Clear button |
+| 4 Scoreboards | ✅ | Ann 0, Ben 0, Cara 0 on all tabs |
+| 5 Empty guess | ✅ | "Enter a guess." |
+| 6 Ben `violin` | ✅ | "Ben: violin" on Ann's and Cara's tabs within 2.5 s, no clicks; Ben 0 |
+| 7 Ben `"  GuItAr "` | ✅ | Ben 100 on all tabs; "Ben guessed the word!" (no text); round continues |
+| 8 Ben's form | ✅ | Input and button disabled |
+| 9 Cara `guitar` | ✅ / fix | Cara 100; all tabs show "Round over! Everyone guessed the word." and revealed history ("Ben: GuItAr ✓", "Cara: guitar ✓"). The notice overflowed the sidebar and clipped text; fixed in `93ca5d6` and re-checked |
+| 10 Drawer's form | ✅ | Disabled throughout |
+| 001 row 3 (regression) | ✅ | Ben and Cara appeared in Ann's lobby with no clicks via `useRoomPolling` |
+| 001 row 9 (regression) | ✅ | Backend down: game page kept state, showed "Can't reach the game server…"; after restart all tabs returned to start with "This room is no longer available." |
 
 ---
 

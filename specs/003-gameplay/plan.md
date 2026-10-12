@@ -137,3 +137,11 @@ No constitution violations to justify.
 ## Deviations
 
 Any difference found during implementation is recorded here and in `REFLECTION.md`.
+
+- **T008–T010 wired GuessForm into GamePage early.** Making `onSubmit` required broke the build
+  until GamePage passed it, so a minimal hookup (store call, disabled for the drawer) landed with
+  T010; T016 completed the wiring.
+- **Round-over notice styling (T022).** `.status-line` uses `width: max-content`, which pushed
+  the sidebar past the panel; the notice is a plain paragraph instead (`93ca5d6`).
+- **Stored guess text keeps the guesser's case** (e.g. `GuItAr`), as the spec records the
+  trimmed text; only the comparison ignores case.
