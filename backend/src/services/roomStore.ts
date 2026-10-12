@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { HttpError } from "../api/schemas.js";
 import type { Participant, Room, RoomSnapshot } from "../models/game.js";
-import { STARTER_ROLES, STARTER_WORDS } from "../seed/starterData.js";
+import { STARTER_WORDS } from "../seed/starterData.js";
 
 const rooms = new Map<string, Room>();
 
@@ -42,10 +42,6 @@ function createParticipant(name: string): Participant {
 
 function cloneRoom(room: Room) {
   return structuredClone(room);
-}
-
-export function listWords() {
-  return [...STARTER_WORDS];
 }
 
 export function selectSecretWord(code: string, gamesStarted: number) {
@@ -159,15 +155,17 @@ export function saveRoom(room: Room) {
 }
 
 export function toRoomSnapshot(room: Room, viewerParticipantId?: string): RoomSnapshot {
-  void viewerParticipantId;
-
-  return {
+  const snapshot: RoomSnapshot = {
     code: room.code,
     status: room.status,
     hostId: room.hostId,
     drawerId: room.drawerId,
-    participants: room.participants.map((participant) => ({ ...participant })),
-    availableWords: listWords(),
-    roles: [...STARTER_ROLES]
+    participants: room.participants.map((participant) => ({ ...participant }))
   };
+
+  if (room.secretWord && viewerParticipantId !== undefined && viewerParticipantId === room.drawerId) {
+    snapshot.secretWord = room.secretWord;
+  }
+
+  return snapshot;
 }

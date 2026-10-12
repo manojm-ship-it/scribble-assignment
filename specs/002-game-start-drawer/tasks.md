@@ -78,10 +78,10 @@ No setup tasks: feature 001 established the structure and tooling.
 
 **Independent test**: quickstart §2 visibility loop; §3 rows 6–7.
 
-- [ ] T012 [US3] In `toRoomSnapshot` in backend/src/services/roomStore.ts include `secretWord` only when `viewerParticipantId === room.drawerId` and a word is set; remove `availableWords`, `roles`, the `listWords` helper and the `STARTER_ROLES` import; remove `availableWords`/`roles` from `RoomSnapshot` in backend/src/models/game.ts (FR-007, FR-009, research R4–R5)
-- [ ] T013 [P] [US3] Add tests in backend/src/services/roomStore.test.ts: drawer view has the word; guesser, unknown-id and no-id views do not; lobby view for the host has no word; no view has `availableWords` or `roles` keys
-- [ ] T014 [P] [US3] Remove `availableWords`, `roles` and the unused `ParticipantRole` type from frontend/src/services/api.ts
-- [ ] T015 [US3] In frontend/src/pages/GamePage.tsx show "Your word: <word>" to the drawer and "The word is hidden. Watch the drawing and guess!" to guessers (US3.1–3.2)
+- [x] T012 [US3] In `toRoomSnapshot` in backend/src/services/roomStore.ts include `secretWord` only when `viewerParticipantId === room.drawerId` and a word is set; remove `availableWords`, `roles`, the `listWords` helper and the `STARTER_ROLES` import; remove `availableWords`/`roles` from `RoomSnapshot` in backend/src/models/game.ts (FR-007, FR-009, research R4–R5)
+- [x] T013 [P] [US3] Add tests in backend/src/services/roomStore.test.ts: drawer view has the word; guesser, unknown-id and no-id views do not; lobby view for the host has no word; no view has `availableWords` or `roles` keys
+- [x] T014 [P] [US3] Remove `availableWords`, `roles` and the unused `ParticipantRole` type from frontend/src/services/api.ts
+- [x] T015 [US3] In frontend/src/pages/GamePage.tsx show "Your word: <word>" to the drawer and "The word is hidden. Watch the drawing and guess!" to guessers (US3.1–3.2)
 
 ---
 

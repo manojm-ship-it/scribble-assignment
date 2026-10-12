@@ -67,6 +67,16 @@ export function GamePage() {
             </dl>
           </Card>
 
+          <Card title="Secret Word">
+            {isDrawer && room.secretWord ? (
+              <p>
+                Your word: <strong>{room.secretWord}</strong>
+              </p>
+            ) : (
+              <p>The word is hidden. Watch the drawing and guess!</p>
+            )}
+          </Card>
+
           <Card title="Your Guess">
             <GuessForm />
           </Card>

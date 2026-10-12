@@ -171,4 +171,30 @@ describe("roomStore", () => {
     expect(host.room.drawerId).toBeNull();
     expect(host.room.secretWord).toBeNull();
   });
+
+  it("only the drawer's view contains the secret word", () => {
+    const host = createRoom("Alice");
+    const guest = joinRoom(host.room.code, "Bob");
+    const room = startGame(host.room.code, host.participantId);
+
+    expect(toRoomSnapshot(room, host.participantId).secretWord).toBe(room.secretWord);
+    expect(toRoomSnapshot(room, guest.participantId)).not.toHaveProperty("secretWord");
+    expect(toRoomSnapshot(room, "not-a-player")).not.toHaveProperty("secretWord");
+    expect(toRoomSnapshot(room)).not.toHaveProperty("secretWord");
+  });
+
+  it("the host's view of a lobby room has no secret word", () => {
+    const host = createRoom("Alice");
+
+    expect(toRoomSnapshot(host.room, host.participantId)).not.toHaveProperty("secretWord");
+  });
+
+  it("room views do not include the candidate word list or roles", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+    const snapshot = toRoomSnapshot(startGame(host.room.code, host.participantId), host.participantId);
+
+    expect(snapshot).not.toHaveProperty("availableWords");
+    expect(snapshot).not.toHaveProperty("roles");
+  });
 });
