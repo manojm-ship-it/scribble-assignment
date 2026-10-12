@@ -48,6 +48,11 @@ export function listWords() {
   return [...STARTER_WORDS];
 }
 
+export function selectSecretWord(code: string, gamesStarted: number) {
+  const codeSum = [...code].reduce((sum, character) => sum + character.charCodeAt(0), 0);
+  return STARTER_WORDS[(codeSum + gamesStarted) % STARTER_WORDS.length];
+}
+
 export function createRoom(playerName: string) {
   const participant = createParticipant(playerName);
   const room: Room = {
@@ -125,6 +130,9 @@ export function startGame(code: string, participantId: string) {
   }
 
   room.status = "playing";
+  room.drawerId = room.hostId;
+  room.secretWord = selectSecretWord(room.code, room.gamesStarted);
+  room.gamesStarted += 1;
   room.updatedAt = now();
   room.lastActiveAt = Date.now();
 

@@ -55,8 +55,8 @@ No setup tasks: feature 001 established the structure and tooling.
 
 **Goal**: The word comes from the clarified rule.
 
-- [ ] T007 [US4] Add exported pure `selectSecretWord(code: string, gamesStarted: number)` returning `STARTER_WORDS[(Σ char codes of code + gamesStarted) % STARTER_WORDS.length]` in backend/src/services/roomStore.ts (FR-006)
-- [ ] T008 [P] [US4] Add tests in backend/src/services/roomStore.test.ts: `("ABCD", 0)` → `pizza`; `("ABCD", 1)` → `castle`; `("AAAA", 0)` → `rocket`; same inputs twice → same word; result always one of the five starter words
+- [x] T007 [US4] Add exported pure `selectSecretWord(code: string, gamesStarted: number)` returning `STARTER_WORDS[(Σ char codes of code + gamesStarted) % STARTER_WORDS.length]` in backend/src/services/roomStore.ts (FR-006)
+- [x] T008 [P] [US4] Add tests in backend/src/services/roomStore.test.ts: `("ABCD", 0)` → `pizza`; `("ABCD", 1)` → `castle`; `("AAAA", 0)` → `rocket`; same inputs twice → same word; result always one of the five starter words
 
 ---
 
@@ -66,8 +66,8 @@ No setup tasks: feature 001 established the structure and tooling.
 
 **Independent test**: quickstart §3 rows 5–7 (drawer labels).
 
-- [ ] T009 [US2] In `startGame` in backend/src/services/roomStore.ts, after the feature 001 checks set `drawerId = hostId`, `secretWord = selectSecretWord(code, gamesStarted)`, then `gamesStarted += 1` (FR-004, FR-006)
-- [ ] T010 [P] [US2] Add tests in backend/src/services/roomStore.test.ts: after start `drawerId` equals `hostId` and `secretWord` equals `selectSecretWord(code, 0)`; a room in the lobby has `drawerId` and `secretWord` `null` (FR-008)
+- [x] T009 [US2] In `startGame` in backend/src/services/roomStore.ts, after the feature 001 checks set `drawerId = hostId`, `secretWord = selectSecretWord(code, gamesStarted)`, then `gamesStarted += 1` (FR-004, FR-006)
+- [x] T010 [P] [US2] Add tests in backend/src/services/roomStore.test.ts: after start `drawerId` equals `hostId` and `secretWord` equals `selectSecretWord(code, 0)`; a room in the lobby has `drawerId` and `secretWord` `null` (FR-008)
 - [ ] T011 [US2] In frontend/src/pages/GamePage.tsx show "<drawer name> is drawing" and "You are the drawer" / "You are guessing" for the viewer, using `room.drawerId`, `room.participants` and `participantId` (FR-005)
 
 ---

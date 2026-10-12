@@ -6,6 +6,7 @@ import {
   removeInactiveRooms,
   ROOM_IDLE_LIMIT_MS,
   saveRoom,
+  selectSecretWord,
   startGame,
   toRoomSnapshot
 } from "./roomStore.js";
@@ -133,5 +134,41 @@ describe("roomStore", () => {
 
     expect(toRoomSnapshot(getRoom(second.room.code)!)).toEqual(before);
     expect(getRoom(first.room.code)?.status).toBe("playing");
+  });
+
+  it.each([
+    ["ABCD", 0, "pizza"],
+    ["ABCD", 1, "castle"],
+    ["AAAA", 0, "rocket"]
+  ])("selectSecretWord(%s, %i) is %s", (code, gamesStarted, word) => {
+    expect(selectSecretWord(code, gamesStarted)).toBe(word);
+  });
+
+  it("selectSecretWord is repeatable and always returns a starter word", () => {
+    const starterWords = ["rocket", "pizza", "castle", "guitar", "sunflower"];
+
+    for (let gamesStarted = 0; gamesStarted < 10; gamesStarted += 1) {
+      const word = selectSecretWord("XY7Q", gamesStarted);
+      expect(selectSecretWord("XY7Q", gamesStarted)).toBe(word);
+      expect(starterWords).toContain(word);
+    }
+  });
+
+  it("startGame makes the host the drawer and picks the word by the rule", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+
+    const room = startGame(host.room.code, host.participantId);
+
+    expect(room.drawerId).toBe(host.participantId);
+    expect(room.secretWord).toBe(selectSecretWord(host.room.code, 0));
+    expect(room.gamesStarted).toBe(1);
+  });
+
+  it("a room in the lobby has no drawer and no secret word", () => {
+    const host = createRoom("Alice");
+
+    expect(host.room.drawerId).toBeNull();
+    expect(host.room.secretWord).toBeNull();
   });
 });
