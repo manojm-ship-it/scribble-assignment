@@ -124,3 +124,6 @@ No constitution violations to justify.
 ## Deviations
 
 Any difference found during implementation is recorded here and in `REFLECTION.md`.
+
+None. Implementation matches the plan; all API and two-tab checks passed on the first run.
+The canvas placeholder still reads "Waiting for drawer..."; drawing is feature 003.

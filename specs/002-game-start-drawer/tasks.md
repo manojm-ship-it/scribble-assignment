@@ -87,13 +87,41 @@ No setup tasks: feature 001 established the structure and tooling.
 
 ## Phase 7: Polish & Validation
 
-- [ ] T016 Run quickstart §1–§2 and record results below
-- [ ] T017 Run quickstart §3 two-tab checks and record results below
-- [ ] T018 Run `temp/run-pr-checks.sh`; record deviations in plan.md
+- [x] T016 Run quickstart §1–§2 and record results below
+- [x] T017 Run quickstart §3 two-tab checks and record results below
+- [x] T018 Run `temp/run-pr-checks.sh`; record deviations in plan.md
 
 ## Validation Results
 
-_Filled in during T016–T018._
+Run on 2026-10-12, backend `localhost:3001`, frontend `localhost:5173`.
+
+### T016 — Automated and API checks (quickstart §1–§2)
+
+| Check | Result |
+|---|---|
+| Backend build + tests | ✅ 43 tests pass |
+| Frontend build + tests | ✅ 5 tests pass |
+| Create with no name / spaces only | ✅ 400 "Enter your name." |
+| Create with 21 characters | ✅ 400 "Names can be at most 20 characters." |
+| Create as `"  Ann  "` | ✅ stored as `'Ann'`; `drawerId` null; no `secretWord`; no `availableWords` |
+| Join with blank name | ✅ 400 "Enter your name." |
+| Join with bad code and blank name | ✅ 400 "Room codes are 4 letters or numbers." (code first) |
+| Join with exactly 20 characters | ✅ joined |
+| Start (room `5GDZ`) | ✅ `drawerId` = host; word `castle` = rule prediction |
+| Guesser / unknown id / no id views | ✅ no `secretWord` in any |
+| Drawer view | ✅ `castle` |
+
+### T017 — Two-tab checks (quickstart §3)
+
+| Row | Result | Notes |
+|---|---|---|
+| 1 Empty, then spaces-only name on create | ✅ | "Enter your name." both times; no room created |
+| 2 21-character name | ✅ | "Names can be at most 20 characters." |
+| 3 Create as `"  Ann  "` | ✅ | Lobby shows "Ann (you)"; room `BKVQ` |
+| 4 Join `BKVQ` with blank name | ✅ | "Enter your name." |
+| 5 Ben joins; Ann starts | ✅ | Both tabs on `/game` within 3 s |
+| 6 Drawer tab | ✅ | "Ann is drawing", "You are the drawer", "Your word: guitar" (rule: 308 mod 5 = 3 → guitar) |
+| 7 Guesser tab | ✅ | "Ann is drawing", "You are guessing", "The word is hidden. Watch the drawing and guess!" |
 
 ---
 
