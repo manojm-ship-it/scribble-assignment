@@ -68,7 +68,7 @@ No setup tasks: feature 001 established the structure and tooling.
 
 - [x] T009 [US2] In `startGame` in backend/src/services/roomStore.ts, after the feature 001 checks set `drawerId = hostId`, `secretWord = selectSecretWord(code, gamesStarted)`, then `gamesStarted += 1` (FR-004, FR-006)
 - [x] T010 [P] [US2] Add tests in backend/src/services/roomStore.test.ts: after start `drawerId` equals `hostId` and `secretWord` equals `selectSecretWord(code, 0)`; a room in the lobby has `drawerId` and `secretWord` `null` (FR-008)
-- [ ] T011 [US2] In frontend/src/pages/GamePage.tsx show "<drawer name> is drawing" and "You are the drawer" / "You are guessing" for the viewer, using `room.drawerId`, `room.participants` and `participantId` (FR-005)
+- [x] T011 [US2] In frontend/src/pages/GamePage.tsx show "<drawer name> is drawing" and "You are the drawer" / "You are guessing" for the viewer, using `room.drawerId`, `room.participants` and `participantId` (FR-005)
 
 ---
 
