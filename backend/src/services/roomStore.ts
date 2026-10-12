@@ -222,7 +222,9 @@ export function toRoomSnapshot(room: Room, viewerParticipantId?: string): RoomSn
     }))
   };
 
-  if (room.secretWord && viewerParticipantId !== undefined && viewerParticipantId === room.drawerId) {
+  const viewerIsDrawer = viewerParticipantId !== undefined && viewerParticipantId === room.drawerId;
+
+  if (room.secretWord && (viewerIsDrawer || room.status === "ended")) {
     snapshot.secretWord = room.secretWord;
   }
 

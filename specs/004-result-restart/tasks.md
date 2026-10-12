@@ -31,10 +31,10 @@ No setup or foundational tasks: features 001–003 provide the model, polling an
 
 **Independent test**: quickstart §2 (ended view) and §3 row 1.
 
-- [ ] T001 [US1] In `toRoomSnapshot` in backend/src/services/roomStore.ts include `secretWord` when the viewer is the drawer **or** `room.status === "ended"` (FR-001, research R1)
-- [ ] T002 [P] [US1] Add tests in backend/src/services/roomStore.test.ts: after the round ends, guesser, unknown-id and anonymous views include the word; while playing the guesser's view still does not
-- [ ] T003 [US1] Create frontend/src/components/RoundResult.tsx: a card showing "The word was <word>" and final scores sorted by score descending (stable, so ties keep join order), plus an `action` slot for the host control or waiting text (FR-002, research R4)
-- [ ] T004 [US1] In frontend/src/pages/GamePage.tsx render `RoundResult` when `room.status === "ended"` (the Activity panel already shows the revealed history) (FR-002, FR-003)
+- [x] T001 [US1] In `toRoomSnapshot` in backend/src/services/roomStore.ts include `secretWord` when the viewer is the drawer **or** `room.status === "ended"` (FR-001, research R1)
+- [x] T002 [P] [US1] Add tests in backend/src/services/roomStore.test.ts: after the round ends, guesser, unknown-id and anonymous views include the word; while playing the guesser's view still does not
+- [x] T003 [US1] Create frontend/src/components/RoundResult.tsx: a card showing "The word was <word>" and final scores sorted by score descending (stable, so ties keep join order), plus an `action` slot for the host control or waiting text (FR-002, research R4)
+- [x] T004 [US1] In frontend/src/pages/GamePage.tsx render `RoundResult` when `room.status === "ended"` (the Activity panel already shows the revealed history) (FR-002, FR-003)
 
 **Checkpoint**: a finished round shows the same result in every tab.
 

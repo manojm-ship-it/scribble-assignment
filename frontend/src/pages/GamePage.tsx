@@ -5,6 +5,7 @@ import { DrawingCanvas } from "../components/DrawingCanvas";
 import { GuessForm } from "../components/GuessForm";
 import { ResultPanel } from "../components/ResultPanel";
 import { RoomCodeBadge } from "../components/RoomCodeBadge";
+import { RoundResult } from "../components/RoundResult";
 import { Scoreboard } from "../components/Scoreboard";
 import { useRoomState, useRoomStore } from "../state/roomStore";
 import { useRoomPolling } from "../state/useRoomPolling";
@@ -50,6 +51,9 @@ export function GamePage() {
         </aside>
 
         <div className="game-page__main">
+          {roundOver ? (
+            <RoundResult word={room.secretWord} participants={room.participants} action={null} />
+          ) : null}
           <Card title="Canvas">
             {isDrawer ? (
               <DrawingCanvas />

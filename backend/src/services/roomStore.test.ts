@@ -319,4 +319,17 @@ describe("roomStore", () => {
       [guesserIds[1], word.toUpperCase()]
     ]);
   });
+
+  it("once the round has ended, every viewer sees the secret word", () => {
+    const { code, guesserIds, word } = startedRoom();
+    const playing = getRoom(code)!;
+
+    expect(toRoomSnapshot(playing, guesserIds[0])).not.toHaveProperty("secretWord");
+
+    const ended = submitGuess(code, guesserIds[0], word);
+
+    for (const viewer of [guesserIds[0], "not-a-player", undefined]) {
+      expect(toRoomSnapshot(ended, viewer).secretWord).toBe(word);
+    }
+  });
 });
