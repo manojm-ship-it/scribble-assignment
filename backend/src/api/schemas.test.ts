@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createRoomSchema,
   joinRoomSchema,
+  restartGameSchema,
   roomCodeParamsSchema,
   startGameSchema,
   submitGuessSchema
@@ -74,5 +75,9 @@ describe("schemas", () => {
     expect(() => submitGuessSchema.parse({ text: "pizza" })).toThrow(
       "A participant id is required to guess."
     );
+  });
+
+  it("restartGameSchema requires a participant id", () => {
+    expect(() => restartGameSchema.parse({})).toThrow("A participant id is required to restart the game.");
   });
 });

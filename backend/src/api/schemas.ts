@@ -29,6 +29,12 @@ export const startGameSchema = z.object({
     .min(1, "A participant id is required to start the game.")
 });
 
+export const restartGameSchema = z.object({
+  participantId: z
+    .string({ required_error: "A participant id is required to restart the game." })
+    .min(1, "A participant id is required to restart the game.")
+});
+
 export const submitGuessSchema = z.object({
   participantId: z
     .string({ required_error: "A participant id is required to guess." })

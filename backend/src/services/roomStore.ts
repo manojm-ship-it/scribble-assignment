@@ -139,6 +139,32 @@ export function startGame(code: string, participantId: string) {
   return cloneRoom(room);
 }
 
+export function restartGame(code: string, participantId: string) {
+  const room = rooms.get(code);
+
+  if (!room) {
+    throw new HttpError(404, "This room is no longer available.");
+  }
+
+  if (room.status === "lobby") {
+    throw new HttpError(409, "The game has not started yet.");
+  }
+
+  if (participantId !== room.hostId) {
+    throw new HttpError(403, "Only the host can restart the game.");
+  }
+
+  room.status = "lobby";
+  room.drawerId = null;
+  room.secretWord = null;
+  room.guesses = [];
+  room.participants = room.participants.map((participant) => ({ ...participant, score: 0 }));
+  room.updatedAt = now();
+  room.lastActiveAt = Date.now();
+
+  return cloneRoom(room);
+}
+
 export function submitGuess(code: string, participantId: string, text: string) {
   const room = rooms.get(code);
 

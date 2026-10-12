@@ -4,6 +4,7 @@ import {
   getRoom,
   joinRoom,
   removeInactiveRooms,
+  restartGame,
   ROOM_IDLE_LIMIT_MS,
   saveRoom,
   selectSecretWord,
@@ -331,5 +332,65 @@ describe("roomStore", () => {
     for (const viewer of [guesserIds[0], "not-a-player", undefined]) {
       expect(toRoomSnapshot(ended, viewer).secretWord).toBe(word);
     }
+  });
+
+  it("restartGame refuses a non-host", () => {
+    const { code, guesserIds, word } = startedRoom();
+    submitGuess(code, guesserIds[0], word);
+
+    expect(() => restartGame(code, guesserIds[0])).toThrow("Only the host can restart the game.");
+    expect(getRoom(code)?.status).toBe("ended");
+  });
+
+  it("restartGame refuses a room that is still in the lobby", () => {
+    const host = createRoom("Alice");
+
+    expect(() => restartGame(host.room.code, host.participantId)).toThrow("The game has not started yet.");
+  });
+
+  it("restartGame from a finished round clears round state and keeps the players and host", () => {
+    const { code, hostId, guesserIds, word } = startedRoom(["Bob", "Cara"]);
+    submitGuess(code, guesserIds[0], "nope");
+    submitGuess(code, guesserIds[0], word);
+    submitGuess(code, guesserIds[1], word);
+    const before = getRoom(code)!;
+
+    const room = restartGame(code, hostId);
+
+    expect(room.status).toBe("lobby");
+    expect(room.drawerId).toBeNull();
+    expect(room.secretWord).toBeNull();
+    expect(room.guesses).toEqual([]);
+    expect(room.hostId).toBe(hostId);
+    expect(room.participants.map((participant) => [participant.id, participant.name])).toEqual(
+      before.participants.map((participant) => [participant.id, participant.name])
+    );
+    expect(room.participants.every((participant) => participant.score === 0)).toBe(true);
+  });
+
+  it("a second restart is refused because the room is already in the lobby", () => {
+    const { code, hostId, guesserIds, word } = startedRoom();
+    submitGuess(code, guesserIds[0], word);
+    restartGame(code, hostId);
+
+    expect(() => restartGame(code, hostId)).toThrow("The game has not started yet.");
+  });
+
+  it("the host can restart in the middle of a round", () => {
+    const { code, hostId, guesserIds } = startedRoom();
+    submitGuess(code, guesserIds[0], "nope");
+
+    expect(restartGame(code, hostId).status).toBe("lobby");
+  });
+
+  it("the next game after a restart uses the next word from the rule", () => {
+    const { code, hostId, guesserIds, word } = startedRoom();
+    submitGuess(code, guesserIds[0], word);
+    restartGame(code, hostId);
+
+    const second = startGame(code, hostId);
+
+    expect(word).toBe(selectSecretWord(code, 0));
+    expect(second.secretWord).toBe(selectSecretWord(code, 1));
   });
 });
