@@ -61,8 +61,8 @@ No setup tasks.
 
 **Independent test**: quickstart §3 rows 4, 6, 7, 9.
 
-- [ ] T011 [US3] In `toRoomSnapshot` in backend/src/services/roomStore.ts send `text: null` for correct guesses while `status === "playing"` and the real text otherwise (FR-011, research R5)
-- [ ] T012 [P] [US3] Add tests in backend/src/services/roomStore.test.ts: while playing, a correct guess's view text is `null` for every viewer (including the guesser and drawer) and wrong guesses keep their text; after `ended`, correct text is present; history order equals submission order
+- [x] T011 [US3] In `toRoomSnapshot` in backend/src/services/roomStore.ts send `text: null` for correct guesses while `status === "playing"` and the real text otherwise (FR-011, research R5)
+- [x] T012 [P] [US3] Add tests in backend/src/services/roomStore.test.ts: while playing, a correct guess's view text is `null` for every viewer (including the guesser and drawer) and wrong guesses keep their text; after `ended`, correct text is present; history order equals submission order
 - [ ] T013 [US3] Extract the lobby's 2000 ms polling, `ApiError` 404 handling (`clearRoom("This room is no longer available.")`) and refresh-error state into `useRoomPolling()` in frontend/src/state/useRoomPolling.ts, and switch frontend/src/pages/LobbyPage.tsx to it with no behaviour change (research R6)
 - [ ] T014 [US3] In frontend/src/components/Scoreboard.tsx accept `participants` and `participantId` props and list each player's name (with "(you)") and score (FR-012)
 - [ ] T015 [US3] In frontend/src/components/ResultPanel.tsx accept `guesses` and `participants` props and render the history in order: "<name>: <text>" for wrong guesses, "<name> guessed the word!" when `text` is `null`, and "<name>: <text> ✓" for revealed correct guesses; show "No guesses yet." when empty (FR-009, FR-011)

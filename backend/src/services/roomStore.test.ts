@@ -293,4 +293,30 @@ describe("roomStore", () => {
     expect(restarted.guesses).toEqual([]);
     expect(restarted.participants.every((participant) => participant.score === 0)).toBe(true);
   });
+
+  it("while playing, correct guess text is hidden from every viewer; wrong guesses keep text", () => {
+    const { code, hostId, guesserIds, word } = startedRoom(["Bob", "Cara"]);
+    submitGuess(code, guesserIds[0], "nope");
+    const room = submitGuess(code, guesserIds[0], word);
+
+    for (const viewer of [hostId, ...guesserIds, undefined]) {
+      const guesses = toRoomSnapshot(room, viewer).guesses;
+      expect(guesses.map((guess) => guess.text)).toEqual(["nope", null]);
+      expect(guesses.map((guess) => guess.correct)).toEqual([false, true]);
+    }
+  });
+
+  it("after the round ends, correct guess text is revealed in submission order", () => {
+    const { code, guesserIds, word } = startedRoom(["Bob", "Cara"]);
+    submitGuess(code, guesserIds[1], "first");
+    submitGuess(code, guesserIds[0], word);
+    const room = submitGuess(code, guesserIds[1], word.toUpperCase());
+
+    expect(room.status).toBe("ended");
+    expect(toRoomSnapshot(room).guesses.map((guess) => [guess.participantId, guess.text])).toEqual([
+      [guesserIds[1], "first"],
+      [guesserIds[0], word],
+      [guesserIds[1], word.toUpperCase()]
+    ]);
+  });
 });

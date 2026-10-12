@@ -217,7 +217,7 @@ export function toRoomSnapshot(room: Room, viewerParticipantId?: string): RoomSn
     guesses: room.guesses.map((guess) => ({
       id: guess.id,
       participantId: guess.participantId,
-      text: guess.text,
+      text: guess.correct && room.status === "playing" ? null : guess.text,
       correct: guess.correct
     }))
   };
