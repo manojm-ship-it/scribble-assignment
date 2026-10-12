@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createRoom, getRoom, joinRoom, saveRoom, toRoomSnapshot } from "./roomStore.js";
+import { createRoom, getRoom, joinRoom, saveRoom, startGame, toRoomSnapshot } from "./roomStore.js";
 
 describe("roomStore", () => {
   it("createRoom returns a room with a 4-character uppercase code", () => {
@@ -45,5 +45,51 @@ describe("roomStore", () => {
     saveRoom({ ...room, status: "playing" });
 
     expect(() => joinRoom(host.room.code, "Cara")).toThrow("This game has already started.");
+  });
+
+  it("startGame refuses a non-host", () => {
+    const host = createRoom("Alice");
+    const guest = joinRoom(host.room.code, "Bob");
+
+    expect(() => startGame(host.room.code, guest.participantId)).toThrow(
+      "Only the host can start the game."
+    );
+    expect(getRoom(host.room.code)?.status).toBe("lobby");
+  });
+
+  it("startGame refuses a participant id that is not in the room", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+
+    expect(() => startGame(host.room.code, "not-a-player")).toThrow(
+      "Only the host can start the game."
+    );
+  });
+
+  it("startGame refuses to start with fewer than 2 players", () => {
+    const host = createRoom("Alice");
+
+    expect(() => startGame(host.room.code, host.participantId)).toThrow(
+      "At least 2 players are needed to start."
+    );
+    expect(getRoom(host.room.code)?.status).toBe("lobby");
+  });
+
+  it("startGame moves the room to playing when the host starts with 2 players", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+
+    expect(startGame(host.room.code, host.participantId).status).toBe("playing");
+    expect(getRoom(host.room.code)?.status).toBe("playing");
+  });
+
+  it("startGame refuses a game that has already started", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+    startGame(host.room.code, host.participantId);
+
+    expect(() => startGame(host.room.code, host.participantId)).toThrow(
+      "This game has already started."
+    );
   });
 });

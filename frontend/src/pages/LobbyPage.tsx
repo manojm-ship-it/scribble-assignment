@@ -13,10 +13,13 @@ export function LobbyPage() {
   const roomStore = useRoomStore();
   const { room, participantId, error, isLoading } = useRoomState();
   const [refreshError, setRefreshError] = useState<string | null>(null);
+  const [startError, setStartError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!room) {
       navigate("/", { replace: true });
+    } else if (room.status === "playing") {
+      navigate("/game");
     }
   }, [navigate, room]);
 
@@ -48,9 +51,26 @@ export function LobbyPage() {
     }
   }
 
+  async function handleStart() {
+    try {
+      setStartError(null);
+      await roomStore.startGame();
+    } catch (caughtError) {
+      setStartError(caughtError instanceof Error ? caughtError.message : "Unable to start the game");
+    }
+  }
+
   if (!room) {
     return null;
   }
+
+  const isHost = participantId === room.hostId;
+  const hasEnoughPlayers = room.participants.length >= 2;
+  const waitingMessage = !isHost
+    ? "Waiting for the host to start the game."
+    : hasEnoughPlayers
+      ? "Ready to start the game."
+      : "Waiting for at least 2 players.";
 
   return (
     <section className="panel placeholder-page">
@@ -88,7 +108,7 @@ export function LobbyPage() {
           <p className="status-line" style={{ backgroundColor: isLoading ? '#fef3c7' : '#e0e7ff', color: isLoading ? '#b45309' : '#3730a3' }}>
             {isLoading ? "Refreshing players..." : "Ready to play"}
           </p>
-          <p style={{ marginTop: '8px' }}>{error ?? refreshError ?? "Waiting for the host to start the game."}</p>
+          <p style={{ marginTop: '8px' }}>{startError ?? error ?? refreshError ?? waitingMessage}</p>
         </Card>
       </div>
 
@@ -96,9 +116,11 @@ export function LobbyPage() {
         <button className="button button--secondary" disabled={isLoading} onClick={handleRefresh}>
           {isLoading ? "Refreshing..." : "Refresh Room"}
         </button>
-        <button className="button button--primary" onClick={() => navigate("/game")}>
-          Start Game
-        </button>
+        {isHost ? (
+          <button className="button button--primary" disabled={!hasEnoughPlayers} onClick={handleStart}>
+            Start Game
+          </button>
+        ) : null}
       </div>
     </section>
   );

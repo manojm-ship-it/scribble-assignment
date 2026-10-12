@@ -105,12 +105,12 @@ Web app: `backend/src/`, `frontend/src/` (plan.md, Project Structure)
 
 **Independent test**: quickstart §2 start calls and §3 rows 2, 4 and 6.
 
-- [ ] T018 [US4] Add `startGame(code, participantId)` to backend/src/services/roomStore.ts checking, in order: room exists (404 "This room is no longer available."), requester is host (403 "Only the host can start the game."), status is `"lobby"` (409 "This game has already started."), `participants.length >= 2` (400 "At least 2 players are needed to start."); then set `status = "playing"` and update `lastActiveAt` (FR-009, FR-010, FR-011)
-- [ ] T019 [US4] Add `startGameSchema` (`participantId`: non-empty string) to backend/src/api/schemas.ts and route `POST /:code/start` returning `{ room }` in backend/src/api/rooms.ts (contracts/rooms-api.md)
-- [ ] T020 [P] [US4] Add tests in backend/src/services/roomStore.test.ts: non-host → 403; host alone → 400; host with 2 players → `status` `"playing"`; second start → 409; unknown participant id → 403
-- [ ] T021 [P] [US4] Add `api.startGame(code, participantId)` (POST `/rooms/:code/start` with JSON body) in frontend/src/services/api.ts and a request-shape test in frontend/src/services/api.test.ts
-- [ ] T022 [US4] Add `startGame()` to `RoomStore` in frontend/src/state/roomStore.ts that calls the API and stores the returned snapshot
-- [ ] T023 [US4] In frontend/src/pages/LobbyPage.tsx show the start control only to the host, disabled with "Waiting for at least 2 players." while fewer than 2; show "Waiting for the host to start the game." to non-hosts; navigate to `/game` whenever the snapshot `status` is `"playing"`; show start errors without crashing (FR-012)
+- [x] T018 [US4] Add `startGame(code, participantId)` to backend/src/services/roomStore.ts checking, in order: room exists (404 "This room is no longer available."), requester is host (403 "Only the host can start the game."), status is `"lobby"` (409 "This game has already started."), `participants.length >= 2` (400 "At least 2 players are needed to start."); then set `status = "playing"` and update `lastActiveAt` (FR-009, FR-010, FR-011)
+- [x] T019 [US4] Add `startGameSchema` (`participantId`: non-empty string) to backend/src/api/schemas.ts and route `POST /:code/start` returning `{ room }` in backend/src/api/rooms.ts (contracts/rooms-api.md)
+- [x] T020 [P] [US4] Add tests in backend/src/services/roomStore.test.ts: non-host → 403; host alone → 400; host with 2 players → `status` `"playing"`; second start → 409; unknown participant id → 403
+- [x] T021 [P] [US4] Add `api.startGame(code, participantId)` (POST `/rooms/:code/start` with JSON body) in frontend/src/services/api.ts and a request-shape test in frontend/src/services/api.test.ts
+- [x] T022 [US4] Add `startGame()` to `RoomStore` in frontend/src/state/roomStore.ts that calls the API and stores the returned snapshot
+- [x] T023 [US4] In frontend/src/pages/LobbyPage.tsx show the start control only to the host, disabled with "Waiting for at least 2 players." while fewer than 2; show "Waiting for the host to start the game." to non-hosts; navigate to `/game` whenever the snapshot `status` is `"playing"`; show start errors without crashing (FR-012)
 
 **Checkpoint**: full create → join → start flow works in two browsers.
 

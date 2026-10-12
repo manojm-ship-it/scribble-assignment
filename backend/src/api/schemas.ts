@@ -17,6 +17,10 @@ export const roomCodeParamsSchema = z.object({
     .transform((code) => code.toUpperCase())
 });
 
+export const startGameSchema = z.object({
+  participantId: z.string().min(1, "A participant id is required to start the game.")
+});
+
 export const roomViewerQuerySchema = z.object({
   participantId: z.string().optional()
 });

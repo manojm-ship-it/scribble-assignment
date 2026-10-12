@@ -104,6 +104,32 @@ export function getRoom(code: string) {
   return cloneRoom(room);
 }
 
+export function startGame(code: string, participantId: string) {
+  const room = rooms.get(code);
+
+  if (!room) {
+    throw new HttpError(404, "This room is no longer available.");
+  }
+
+  if (participantId !== room.hostId) {
+    throw new HttpError(403, "Only the host can start the game.");
+  }
+
+  if (room.status !== "lobby") {
+    throw new HttpError(409, "This game has already started.");
+  }
+
+  if (room.participants.length < 2) {
+    throw new HttpError(400, "At least 2 players are needed to start.");
+  }
+
+  room.status = "playing";
+  room.updatedAt = now();
+  room.lastActiveAt = Date.now();
+
+  return cloneRoom(room);
+}
+
 export function saveRoom(room: Room) {
   room.updatedAt = now();
   rooms.set(room.code, cloneRoom(room));
