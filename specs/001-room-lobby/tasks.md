@@ -35,8 +35,8 @@ Web app: `backend/src/`, `frontend/src/` (plan.md, Project Structure)
 
 **Purpose**: Make the app reach the backend with default settings (gap 1, FR-001)
 
-- [ ] T001 Change the default `API_BASE_URL` from `http://localhost:3001/bug` to `http://localhost:3001` in frontend/src/services/api.ts (FR-001)
-- [ ] T002 [P] Add a test asserting `api.createRoom` calls exactly `http://localhost:3001/rooms` when `VITE_API_URL` is unset in frontend/src/services/api.test.ts
+- [x] T001 Change the default `API_BASE_URL` from `http://localhost:3001/bug` to `http://localhost:3001` in frontend/src/services/api.ts (FR-001)
+- [x] T002 [P] Add a test asserting `api.createRoom` calls exactly `http://localhost:3001/rooms` when `VITE_API_URL` is unset in frontend/src/services/api.test.ts
 
 **Checkpoint**: `cd frontend && npm test` passes; creating a room in the browser reaches the lobby.
 

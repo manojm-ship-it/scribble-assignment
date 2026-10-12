@@ -28,6 +28,18 @@ describe("api service", () => {
     );
   });
 
+  it("uses http://localhost:3001 as the default base URL", async () => {
+    const mockResponse = {
+      ok: true,
+      json: () => Promise.resolve({ participantId: "p1", room: { code: "ABCD" } }),
+    };
+    vi.mocked(fetch).mockResolvedValue(mockResponse as unknown as Response);
+
+    await api.createRoom("Alice");
+
+    expect(fetch).toHaveBeenCalledWith("http://localhost:3001/rooms", expect.anything());
+  });
+
   it("fetchRoom sends GET to /rooms/:code with participantId query param", async () => {
     const mockResponse = {
       ok: true,
