@@ -8,7 +8,8 @@ export interface Participant {
 
 export interface RoomSnapshot {
   code: string;
-  status: "lobby";
+  status: "lobby" | "playing";
+  hostId: string;
   participants: Participant[];
   availableWords: string[];
   roles: ParticipantRole[];
@@ -17,6 +18,15 @@ export interface RoomSnapshot {
 export interface RoomSessionResponse {
   participantId: string;
   room: RoomSnapshot;
+}
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
@@ -35,7 +45,7 @@ async function request<T>(path: string, init?: RequestInit) {
       message?: string;
     };
 
-    throw new Error(errorBody.message ?? "Request failed");
+    throw new ApiError(response.status, errorBody.message ?? "Request failed");
   }
 
   return (await response.json()) as T;

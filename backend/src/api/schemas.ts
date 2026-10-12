@@ -9,7 +9,12 @@ export const joinRoomSchema = z.object({
 });
 
 export const roomCodeParamsSchema = z.object({
-  code: z.string()
+  code: z
+    .string()
+    .trim()
+    .min(1, "Enter a room code.")
+    .regex(/^[A-Za-z0-9]{4}$/, "Room codes are 4 letters or numbers.")
+    .transform((code) => code.toUpperCase())
 });
 
 export const roomViewerQuerySchema = z.object({

@@ -11,4 +11,18 @@ describe("schemas", () => {
   it("roomCodeParamsSchema rejects missing code", () => {
     expect(() => roomCodeParamsSchema.parse({})).toThrow();
   });
+
+  it("roomCodeParamsSchema trims and upper-cases a valid code", () => {
+    expect(roomCodeParamsSchema.parse({ code: " abcd " }).code).toBe("ABCD");
+  });
+
+  it("roomCodeParamsSchema rejects a blank code with a clear message", () => {
+    expect(() => roomCodeParamsSchema.parse({ code: "   " })).toThrow("Enter a room code.");
+  });
+
+  it.each(["AB", "ABCDE", "AB!D"])("roomCodeParamsSchema rejects malformed code %s", (code) => {
+    expect(() => roomCodeParamsSchema.parse({ code })).toThrow(
+      "Room codes are 4 letters or numbers."
+    );
+  });
 });

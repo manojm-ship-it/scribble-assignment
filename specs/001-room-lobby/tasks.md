@@ -46,11 +46,11 @@ Web app: `backend/src/`, `frontend/src/` (plan.md, Project Structure)
 
 **Purpose**: Shared types, validation and error plumbing used by every story
 
-- [ ] T003 Update types in backend/src/models/game.ts: `RoomStatus = "lobby" | "playing"`; add `hostId: string` and `lastActiveAt: number` (epoch ms) to `Room`; add `hostId: string` to `RoomSnapshot` (data-model.md)
-- [ ] T004 Make `errorHandler` respond with the first Zod issue's `message` (instead of "Invalid request payload") in backend/src/api/router.ts (research R2, FR-015)
-- [ ] T005 Redefine `roomCodeParamsSchema` in backend/src/api/schemas.ts: `code` trimmed; empty → "Enter a room code."; must match `/^[A-Za-z0-9]{4}$/` → "Room codes are 4 letters or numbers."; then upper-cased. Remove the now-redundant `.toUpperCase()` calls in backend/src/api/rooms.ts (research R1, FR-005, FR-006)
-- [ ] T006 [P] Add schema tests in backend/src/api/schemas.test.ts: `" abcd "` → `"ABCD"`; `"  "` rejected with "Enter a room code."; `"AB"`, `"ABCDE"`, `"AB!D"` rejected with "Room codes are 4 letters or numbers."
-- [ ] T007 [P] In frontend/src/services/api.ts add `ApiError extends Error` with a numeric `status`, throw it from `request` on non-OK responses, and update `RoomSnapshot` to `status: "lobby" | "playing"` and `hostId: string` (research R7)
+- [x] T003 Update types in backend/src/models/game.ts: `RoomStatus = "lobby" | "playing"`; add `hostId: string` and `lastActiveAt: number` (epoch ms) to `Room`; add `hostId: string` to `RoomSnapshot` (data-model.md)
+- [x] T004 Make `errorHandler` respond with the first Zod issue's `message` (instead of "Invalid request payload") in backend/src/api/router.ts (research R2, FR-015)
+- [x] T005 Redefine `roomCodeParamsSchema` in backend/src/api/schemas.ts: `code` trimmed; empty → "Enter a room code."; must match `/^[A-Za-z0-9]{4}$/` → "Room codes are 4 letters or numbers."; then upper-cased. Remove the now-redundant `.toUpperCase()` calls in backend/src/api/rooms.ts (research R1, FR-005, FR-006)
+- [x] T006 [P] Add schema tests in backend/src/api/schemas.test.ts: `" abcd "` → `"ABCD"`; `"  "` rejected with "Enter a room code."; `"AB"`, `"ABCDE"`, `"AB!D"` rejected with "Room codes are 4 letters or numbers."
+- [x] T007 [P] In frontend/src/services/api.ts add `ApiError extends Error` with a numeric `status`, throw it from `request` on non-OK responses, and update `RoomSnapshot` to `status: "lobby" | "playing"` and `hostId: string` (research R7)
 
 **Checkpoint**: both apps build; schema tests pass.
 
@@ -62,7 +62,7 @@ Web app: `backend/src/`, `frontend/src/` (plan.md, Project Structure)
 
 **Independent test**: Create a room; the lobby shows the code and marks the creator as host (quickstart §3 row 1).
 
-- [ ] T008 [US1] In backend/src/services/roomStore.ts set `hostId` to the creator's id and `lastActiveAt` to `Date.now()` in `createRoom`, and include `hostId` in `toRoomSnapshot` (FR-002, FR-003)
+- [x] T008 [US1] In backend/src/services/roomStore.ts set `hostId` to the creator's id and `lastActiveAt` to `Date.now()` in `createRoom`, and include `hostId` in `toRoomSnapshot` (FR-002, FR-003)
 - [ ] T009 [P] [US1] Add tests in backend/src/services/roomStore.test.ts: new room's `hostId` equals the returned `participantId`; snapshot exposes `hostId`; status is `"lobby"`; 50 created rooms have 50 distinct codes
 - [ ] T010 [US1] In frontend/src/pages/LobbyPage.tsx show participants in join order, label the host "host" and the viewer's own entry "(you)" using `room.hostId` and `participantId` (FR-004; duplicate names allowed)
 
