@@ -58,6 +58,9 @@ export function createRoom(playerName?: string) {
     code: generateUniqueCode(),
     status: "lobby",
     hostId: participant.id,
+    drawerId: null,
+    secretWord: null,
+    gamesStarted: 0,
     participants: [participant],
     createdAt: now(),
     updatedAt: now(),
@@ -158,6 +161,7 @@ export function toRoomSnapshot(room: Room, viewerParticipantId?: string): RoomSn
     code: room.code,
     status: room.status,
     hostId: room.hostId,
+    drawerId: room.drawerId,
     participants: room.participants.map((participant) => ({ ...participant })),
     availableWords: listWords(),
     roles: [...STARTER_ROLES]

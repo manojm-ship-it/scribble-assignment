@@ -10,6 +10,8 @@ export interface RoomSnapshot {
   code: string;
   status: "lobby" | "playing";
   hostId: string;
+  drawerId: string | null;
+  secretWord?: string;
   participants: Participant[];
   availableWords: string[];
   roles: ParticipantRole[];

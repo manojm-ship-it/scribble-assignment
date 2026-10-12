@@ -29,8 +29,8 @@ No setup tasks: feature 001 established the structure and tooling.
 
 ## Phase 2: Foundational
 
-- [ ] T001 Add `drawerId: string | null`, `secretWord: string | null` and `gamesStarted: number` to `Room`, and `drawerId: string | null` plus optional `secretWord?: string` to `RoomSnapshot`, in backend/src/models/game.ts; initialise them to `null`, `null`, `0` in `createRoom` and expose `drawerId` in `toRoomSnapshot` in backend/src/services/roomStore.ts (data-model.md)
-- [ ] T002 [P] Update the frontend `RoomSnapshot` type with `drawerId: string | null` and `secretWord?: string` in frontend/src/services/api.ts
+- [x] T001 Add `drawerId: string | null`, `secretWord: string | null` and `gamesStarted: number` to `Room`, and `drawerId: string | null` plus optional `secretWord?: string` to `RoomSnapshot`, in backend/src/models/game.ts; initialise them to `null`, `null`, `0` in `createRoom` and expose `drawerId` in `toRoomSnapshot` in backend/src/services/roomStore.ts (data-model.md)
+- [x] T002 [P] Update the frontend `RoomSnapshot` type with `drawerId: string | null` and `secretWord?: string` in frontend/src/services/api.ts
 
 **Checkpoint**: both apps build; existing tests pass.
 
