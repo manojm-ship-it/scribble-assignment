@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createRoomSchema, roomCodeParamsSchema } from "./schemas.js";
+import { createRoomSchema, roomCodeParamsSchema, startGameSchema } from "./schemas.js";
 
 describe("schemas", () => {
   it("createRoomSchema accepts a valid body with playerName", () => {
@@ -24,5 +24,9 @@ describe("schemas", () => {
     expect(() => roomCodeParamsSchema.parse({ code })).toThrow(
       "Room codes are 4 letters or numbers."
     );
+  });
+
+  it("startGameSchema rejects a missing participantId with a readable message", () => {
+    expect(() => startGameSchema.parse({})).toThrow("A participant id is required to start the game.");
   });
 });
