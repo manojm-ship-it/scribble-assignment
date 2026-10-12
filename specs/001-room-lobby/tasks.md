@@ -63,8 +63,8 @@ Web app: `backend/src/`, `frontend/src/` (plan.md, Project Structure)
 **Independent test**: Create a room; the lobby shows the code and marks the creator as host (quickstart §3 row 1).
 
 - [x] T008 [US1] In backend/src/services/roomStore.ts set `hostId` to the creator's id and `lastActiveAt` to `Date.now()` in `createRoom`, and include `hostId` in `toRoomSnapshot` (FR-002, FR-003)
-- [ ] T009 [P] [US1] Add tests in backend/src/services/roomStore.test.ts: new room's `hostId` equals the returned `participantId`; snapshot exposes `hostId`; status is `"lobby"`; 50 created rooms have 50 distinct codes
-- [ ] T010 [US1] In frontend/src/pages/LobbyPage.tsx show participants in join order, label the host "host" and the viewer's own entry "(you)" using `room.hostId` and `participantId` (FR-004; duplicate names allowed)
+- [x] T009 [P] [US1] Add tests in backend/src/services/roomStore.test.ts: new room's `hostId` equals the returned `participantId`; snapshot exposes `hostId`; status is `"lobby"`; 50 created rooms have 50 distinct codes
+- [x] T010 [US1] In frontend/src/pages/LobbyPage.tsx show participants in join order, label the host "host" and the viewer's own entry "(you)" using `room.hostId` and `participantId` (FR-004; duplicate names allowed)
 
 **Checkpoint**: US1 independently testable.
 
