@@ -79,6 +79,12 @@ export const api = {
       body: JSON.stringify({ participantId })
     });
   },
+  restartGame(code: string, participantId: string) {
+    return request<{ room: RoomSnapshot }>(`/rooms/${encodeURIComponent(code)}/restart`, {
+      method: "POST",
+      body: JSON.stringify({ participantId })
+    });
+  },
   submitGuess(code: string, participantId: string, text: string) {
     return request<{ room: RoomSnapshot }>(`/rooms/${encodeURIComponent(code)}/guesses`, {
       method: "POST",

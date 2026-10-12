@@ -50,8 +50,8 @@ No setup or foundational tasks: features 001–003 provide the model, polling an
 - [x] T006 [US2] Add `restartGame(code, participantId)` to backend/src/services/roomStore.ts checking, in order, room exists (404), `status !== "lobby"` (409 "The game has not started yet."), requester is host (403 "Only the host can restart the game."); then set `status = "lobby"`, `drawerId = null`, `secretWord = null`, `guesses = []`, every `score = 0`, keeping `participants`, `hostId` and `gamesStarted` (FR-004–FR-006, FR-008, research R2)
 - [x] T007 [P] [US2] Add tests in backend/src/services/roomStore.test.ts: non-host refused; lobby refused; host restart from `ended` resets status, drawer, word, guesses and scores while participants (ids, names, order) and host are unchanged; duplicate restart refused; host restart from `playing` allowed; next start after restart uses `selectSecretWord(code, 1)`
 - [x] T008 [US2] Add route `POST /:code/restart` returning `{ room: toRoomSnapshot(room, participantId) }` in backend/src/api/rooms.ts (contracts/rooms-api.md)
-- [ ] T009 [P] [US2] Add `api.restartGame(code, participantId)` in frontend/src/services/api.ts with a request-shape test in frontend/src/services/api.test.ts, and `restartGame()` on `RoomStore` in frontend/src/state/roomStore.ts storing the returned snapshot
-- [ ] T010 [US2] In frontend/src/pages/GamePage.tsx navigate to `/lobby` whenever `room.status === "lobby"`; in RoundResult's action slot show "Play again" (host) or "Waiting for the host to start a new game." (others); during an active round give the host an "End game and return to lobby" button calling the same restart; show restart errors without crashing (FR-007, FR-009)
+- [x] T009 [P] [US2] Add `api.restartGame(code, participantId)` in frontend/src/services/api.ts with a request-shape test in frontend/src/services/api.test.ts, and `restartGame()` on `RoomStore` in frontend/src/state/roomStore.ts storing the returned snapshot
+- [x] T010 [US2] In frontend/src/pages/GamePage.tsx navigate to `/lobby` whenever `room.status === "lobby"`; in RoundResult's action slot show "Play again" (host) or "Waiting for the host to start a new game." (others); during an active round give the host an "End game and return to lobby" button calling the same restart; show restart errors without crashing (FR-007, FR-009)
 
 **Checkpoint**: full create → play → result → restart → play again cycle works.
 
@@ -59,7 +59,7 @@ No setup or foundational tasks: features 001–003 provide the model, polling an
 
 ## Phase 5: User Story 3 — No exit bounce (P3)
 
-- [ ] T011 [US3] Remove the "Exit Game" button from frontend/src/pages/GamePage.tsx (FR-010, research R5)
+- [x] T011 [US3] Remove the "Exit Game" button from frontend/src/pages/GamePage.tsx (FR-010, research R5)
 
 ---
 

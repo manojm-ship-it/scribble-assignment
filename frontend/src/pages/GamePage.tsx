@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
 import { DrawingCanvas } from "../components/DrawingCanvas";
@@ -15,12 +15,24 @@ export function GamePage() {
   const roomStore = useRoomStore();
   const { room, participantId } = useRoomState();
   const { refreshError } = useRoomPolling();
+  const [restartError, setRestartError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!room) {
       navigate("/", { replace: true });
+    } else if (room.status === "lobby") {
+      navigate("/lobby");
     }
   }, [navigate, room]);
+
+  async function handleRestart() {
+    try {
+      setRestartError(null);
+      await roomStore.restartGame();
+    } catch (caughtError) {
+      setRestartError(caughtError instanceof Error ? caughtError.message : "Unable to restart the game");
+    }
+  }
 
   if (!room) {
     return null;
@@ -29,6 +41,7 @@ export function GamePage() {
   const viewer = room.participants.find((participant) => participant.id === participantId) ?? null;
   const drawer = room.participants.find((participant) => participant.id === room.drawerId) ?? null;
   const isDrawer = participantId !== null && participantId === room.drawerId;
+  const isHost = participantId !== null && participantId === room.hostId;
   const roundOver = room.status === "ended";
   const hasGuessedCorrectly = room.guesses.some(
     (guess) => guess.participantId === participantId && guess.correct
@@ -52,7 +65,19 @@ export function GamePage() {
 
         <div className="game-page__main">
           {roundOver ? (
-            <RoundResult word={room.secretWord} participants={room.participants} action={null} />
+            <RoundResult
+              word={room.secretWord}
+              participants={room.participants}
+              action={
+                isHost ? (
+                  <button className="button button--primary" type="button" onClick={handleRestart}>
+                    Play again
+                  </button>
+                ) : (
+                  <p>Waiting for the host to start a new game.</p>
+                )
+              }
+            />
           ) : null}
           <Card title="Canvas">
             {isDrawer ? (
@@ -110,11 +135,14 @@ export function GamePage() {
         </aside>
       </div>
 
-      <div className="button-row">
-        <button className="button button--secondary" onClick={() => navigate("/lobby")}>
-          Exit Game
-        </button>
-      </div>
+      {restartError ? <p className="form__error">{restartError}</p> : null}
+      {isHost && room.status === "playing" ? (
+        <div className="button-row">
+          <button className="button button--secondary" type="button" onClick={handleRestart}>
+            End game and return to lobby
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }
