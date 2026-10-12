@@ -91,7 +91,7 @@ frontend/src/
 └── pages/
     ├── LobbyPage.tsx            # 2 s polling, host/you markers, host-only start, navigate on playing/404
     ├── JoinRoomPage.tsx         # empty-code check before submit
-    └── StartPage.tsx            # shows the store's error (e.g. "This room is no longer available.")
+    └── StartPage.tsx            # shows the store's notice (e.g. "This room is no longer available.")
 ```
 
 **Structure Decision**: Keep the starter's two-package layout and layering
@@ -149,4 +149,11 @@ No constitution violations to justify.
 
 ## Deviations
 
-None yet. Any difference found during implementation is recorded here and in `REFLECTION.md`.
+Any difference found during implementation is recorded here and in `REFLECTION.md`.
+
+- **T015/T017: separate `notice` field.** The plan first reused the store's `error` for the
+  "room no longer available" message. Implementation showed that `error` also holds failed
+  create/join messages, which would then reappear on the start screen. A dedicated `notice`
+  field (cleared on the next create/join) is used instead. Behaviour matches the spec.
+- **T003 + T008 committed together.** The new required `hostId` field does not compile until
+  `createRoom` sets it, so both changes share one commit.

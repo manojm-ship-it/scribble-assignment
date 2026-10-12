@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
 import { PageHeader } from "../components/PageHeader";
 import { RoomCodeBadge } from "../components/RoomCodeBadge";
+import { ApiError } from "../services/api";
 import { useRoomState, useRoomStore } from "../state/roomStore";
+
+const POLL_INTERVAL_MS = 2000;
 
 export function LobbyPage() {
   const navigate = useNavigate();
@@ -17,11 +20,30 @@ export function LobbyPage() {
     }
   }, [navigate, room]);
 
+  const roomCode = room?.code;
+
+  useEffect(() => {
+    if (!roomCode) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void handleRefresh();
+    }, POLL_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [roomCode]);
+
   async function handleRefresh() {
     try {
-      setRefreshError(null);
       await roomStore.fetchRoom();
+      setRefreshError(null);
     } catch (caughtError) {
+      if (caughtError instanceof ApiError && caughtError.status === 404) {
+        roomStore.clearRoom("This room is no longer available.");
+        return;
+      }
+
       setRefreshError(caughtError instanceof Error ? caughtError.message : "Unable to refresh room");
     }
   }

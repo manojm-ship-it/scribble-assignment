@@ -95,7 +95,13 @@ export function joinRoom(code: string, playerName?: string) {
 
 export function getRoom(code: string) {
   const room = rooms.get(code);
-  return room ? cloneRoom(room) : null;
+
+  if (!room) {
+    return null;
+  }
+
+  room.lastActiveAt = Date.now();
+  return cloneRoom(room);
 }
 
 export function saveRoom(room: Room) {

@@ -90,10 +90,10 @@ Web app: `backend/src/`, `frontend/src/` (plan.md, Project Structure)
 
 **Independent test**: quickstart §3 rows 3 and 9.
 
-- [ ] T014 [US3] In backend/src/services/roomStore.ts update `lastActiveAt` whenever `getRoom` finds a room; in backend/src/api/rooms.ts change the fetch 404 message to "This room is no longer available." (FR-014, contract GET)
-- [ ] T015 [US3] Add `clearRoom(message: string)` to `RoomStore` in frontend/src/state/roomStore.ts that sets `room` and `participantId` to `null` and `error` to the message
-- [ ] T016 [US3] In frontend/src/pages/LobbyPage.tsx poll `roomStore.fetchRoom()` every 2000 ms while mounted (clear the interval on unmount); on `ApiError` 404 call `clearRoom("This room is no longer available.")` and navigate to `/`; on other errors keep the last snapshot and show the message (FR-007, FR-008)
-- [ ] T017 [P] [US3] In frontend/src/pages/StartPage.tsx show the store's `error` (if any) using the existing `form__error` class (US3 scenario 3)
+- [x] T014 [US3] In backend/src/services/roomStore.ts update `lastActiveAt` whenever `getRoom` finds a room; in backend/src/api/rooms.ts change the fetch 404 message to "This room is no longer available." (FR-014, contract GET)
+- [x] T015 [US3] Add a `notice: string | null` field and `clearRoom(notice: string)` to `RoomStore` in frontend/src/state/roomStore.ts that sets `room` and `participantId` to `null` and stores the notice; `setRoomSession` clears it. (A separate field, not `error`, so stale create/join errors never show on the start screen.)
+- [x] T016 [US3] In frontend/src/pages/LobbyPage.tsx poll `roomStore.fetchRoom()` every 2000 ms while mounted (clear the interval on unmount); on `ApiError` 404 call `clearRoom("This room is no longer available.")` and navigate to `/`; on other errors keep the last snapshot and show the message (FR-007, FR-008)
+- [x] T017 [P] [US3] In frontend/src/pages/StartPage.tsx show the store's `notice` (if any) using the existing `form__error` class (US3 scenario 3)
 
 **Checkpoint**: a join in window B appears in window A within ~2 s with no clicks.
 

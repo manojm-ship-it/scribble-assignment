@@ -47,7 +47,7 @@ export function createRoomsRouter() {
       const room = getRoom(code);
 
       if (!room) {
-        throw new HttpError(404, "Unable to load room");
+        throw new HttpError(404, "This room is no longer available.");
       }
 
       response.json({

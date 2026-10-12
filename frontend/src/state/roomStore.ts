@@ -13,6 +13,7 @@ export interface RoomState {
   room: RoomSnapshot | null;
   participantId: string | null;
   error: string | null;
+  notice: string | null;
   isLoading: boolean;
 }
 
@@ -23,6 +24,7 @@ class RoomStore {
     room: null,
     participantId: null,
     error: null,
+    notice: null,
     isLoading: false
   };
 
@@ -66,7 +68,8 @@ class RoomStore {
     this.setState({
       participantId: response.participantId,
       room: response.room,
-      error: null
+      error: null,
+      notice: null
     });
   }
 
@@ -74,6 +77,14 @@ class RoomStore {
     this.setState({
       room,
       error: null
+    });
+  }
+
+  clearRoom(notice: string) {
+    this.setState({
+      room: null,
+      participantId: null,
+      notice
     });
   }
 
