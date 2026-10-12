@@ -65,13 +65,45 @@ No setup or foundational tasks: features 001–003 provide the model, polling an
 
 ## Phase 6: Polish & Validation
 
-- [ ] T012 Run quickstart §1–§2 and record results below
-- [ ] T013 Run quickstart §3 two-tab checks (including the full play-again cycle, SC-005) and record results below
-- [ ] T014 Run `temp/run-pr-checks.sh` (expect pre-evaluation to report 4/4 feature folders); record deviations in plan.md
+- [x] T012 Run quickstart §1–§2 and record results below
+- [x] T013 Run quickstart §3 two-tab checks (including the full play-again cycle, SC-005) and record results below
+- [x] T014 Run `temp/run-pr-checks.sh` (expect pre-evaluation to report 4/4 feature folders); record deviations in plan.md
 
 ## Validation Results
 
-_Filled in during T012–T014._
+Run on 2026-10-12, backend `localhost:3001`, frontend `localhost:5173`.
+
+### T012 — Automated and API checks (quickstart §1–§2; room `Y8LZ`)
+
+| Check | Result |
+|---|---|
+| Backend build + tests | ✅ 68 tests pass |
+| Frontend build + tests | ✅ 7 tests pass |
+| Restart in lobby | ✅ 409 "The game has not started yet." |
+| Guesser view after the round ends | ✅ `ended`, word `pizza`, history `['pizza']` |
+| Anonymous view after the round ends | ✅ word `pizza` |
+| Restart by non-host | ✅ 403 "Only the host can restart the game." |
+| Restart without participant id | ✅ 400 "A participant id is required to restart the game." |
+| Restart by host | ✅ `lobby`, drawer `null`, no word, no guesses, same host, Ann 0 / Ben 0 |
+| Duplicate restart | ✅ 409 "The game has not started yet." |
+| Next game's word | ✅ `pizza` → `castle`, matching the rule (count 0 → 1) |
+| Mid-round restart by host | ✅ `lobby` |
+
+### T013 — Two-tab checks and full cycle (quickstart §3; room `HNEU`, rule: sunflower then rocket)
+
+| Row | Result | Notes |
+|---|---|---|
+| 1 Round result | ✅ | Both tabs: "The word was sunflower"; Ben 100 above Ann 0; history "Ben: daisy", "Ben: SunFlower ✓" |
+| 2 Host's result | ✅ | "Play again" button |
+| 3 Guest's result | ✅ | "Waiting for the host to start a new game."; no button |
+| 4 No Exit Game | ✅ | Absent during the round and on the result; host had "End game and return to lobby" while playing |
+| 5 Play again | ✅ | Both tabs in the lobby within 2.5 s; Ann host, Ben listed |
+| 6 Start again | ✅ | Word `rocket` (rule prediction); scores 0; "No guesses yet."; Ben's form enabled |
+| 7 End game mid-round | ✅ | Both tabs back in the lobby |
+| SC-005 full cycle | ✅ | Create → join → play → result → restart → play → end, no page reloads |
+
+Observation: tab B showed two extra buttons ("Open chat", "Dismiss") outside the app's React root.
+They are not in the app source; most likely injected by a browser extension. Not interacted with.
 
 ---
 

@@ -121,3 +121,7 @@ No constitution violations to justify.
 ## Deviations
 
 Any difference found during implementation is recorded here and in `REFLECTION.md`.
+
+- **T009–T011 in one commit.** Removing "Exit Game" (T011) edited the same block of `GamePage.tsx`
+  that received the host's mid-round control (T010), so they share commit `8201707`.
+- Otherwise none: all API and two-tab checks passed on the first run.
