@@ -1,0 +1,143 @@
+---
+
+description: "Task list for feature 004 — Result, Restart & Final Validation"
+---
+
+# Tasks: Result, Restart & Final Validation
+
+**Input**: Design documents from `specs/004-result-restart/`
+
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/rooms-api.md, quickstart.md
+
+**Tests**: Included (constitution, Principle V).
+
+**Organization**: By user story, in priority order (US1, US2, US3).
+
+**Commits**: `feat(004): Txxx <summary>`; build and tests passing in both apps before each commit.
+
+## Format: `[ID] [P?] [Story] Description`
+
+---
+
+## Phase 1–2: Setup & Foundational
+
+No setup or foundational tasks: features 001–003 provide the model, polling and screens.
+
+---
+
+## Phase 3: User Story 1 — Everyone sees the result (P1) 🎯
+
+**Goal**: The word, final scores and full history are visible to every player after the round.
+
+**Independent test**: quickstart §2 (ended view) and §3 row 1.
+
+- [x] T001 [US1] In `toRoomSnapshot` in backend/src/services/roomStore.ts include `secretWord` when the viewer is the drawer **or** `room.status === "ended"` (FR-001, research R1)
+- [x] T002 [P] [US1] Add tests in backend/src/services/roomStore.test.ts: after the round ends, guesser, unknown-id and anonymous views include the word; while playing the guesser's view still does not
+- [x] T003 [US1] Create frontend/src/components/RoundResult.tsx: a card showing "The word was <word>" and final scores sorted by score descending (stable, so ties keep join order), plus an `action` slot for the host control or waiting text (FR-002, research R4)
+- [x] T004 [US1] In frontend/src/pages/GamePage.tsx render `RoundResult` when `room.status === "ended"` (the Activity panel already shows the revealed history) (FR-002, FR-003)
+
+**Checkpoint**: a finished round shows the same result in every tab.
+
+---
+
+## Phase 4: User Story 2 — Host restarts; everyone returns to the lobby (P1)
+
+**Goal**: Host-only restart from an active or ended round; full reset; everyone back in the lobby.
+
+**Independent test**: quickstart §2 restart calls; §3 rows 2, 3, 5, 6, 7.
+
+- [x] T005 [US2] Add `restartGameSchema` (`participantId` required, "A participant id is required to restart the game.") to backend/src/api/schemas.ts and a test in backend/src/api/schemas.test.ts
+- [x] T006 [US2] Add `restartGame(code, participantId)` to backend/src/services/roomStore.ts checking, in order, room exists (404), `status !== "lobby"` (409 "The game has not started yet."), requester is host (403 "Only the host can restart the game."); then set `status = "lobby"`, `drawerId = null`, `secretWord = null`, `guesses = []`, every `score = 0`, keeping `participants`, `hostId` and `gamesStarted` (FR-004–FR-006, FR-008, research R2)
+- [x] T007 [P] [US2] Add tests in backend/src/services/roomStore.test.ts: non-host refused; lobby refused; host restart from `ended` resets status, drawer, word, guesses and scores while participants (ids, names, order) and host are unchanged; duplicate restart refused; host restart from `playing` allowed; next start after restart uses `selectSecretWord(code, 1)`
+- [x] T008 [US2] Add route `POST /:code/restart` returning `{ room: toRoomSnapshot(room, participantId) }` in backend/src/api/rooms.ts (contracts/rooms-api.md)
+- [x] T009 [P] [US2] Add `api.restartGame(code, participantId)` in frontend/src/services/api.ts with a request-shape test in frontend/src/services/api.test.ts, and `restartGame()` on `RoomStore` in frontend/src/state/roomStore.ts storing the returned snapshot
+- [x] T010 [US2] In frontend/src/pages/GamePage.tsx navigate to `/lobby` whenever `room.status === "lobby"`; in RoundResult's action slot show "Play again" (host) or "Waiting for the host to start a new game." (others); during an active round give the host an "End game and return to lobby" button calling the same restart; show restart errors without crashing (FR-007, FR-009)
+
+**Checkpoint**: full create → play → result → restart → play again cycle works.
+
+---
+
+## Phase 5: User Story 3 — No exit bounce (P3)
+
+- [x] T011 [US3] Remove the "Exit Game" button from frontend/src/pages/GamePage.tsx (FR-010, research R5)
+
+---
+
+## Phase 6: Polish & Validation
+
+- [x] T012 Run quickstart §1–§2 and record results below
+- [x] T013 Run quickstart §3 two-tab checks (including the full play-again cycle, SC-005) and record results below
+- [x] T014 Run `temp/run-pr-checks.sh` (expect pre-evaluation to report 4/4 feature folders); record deviations in plan.md
+
+## Validation Results
+
+Run on 2026-10-12, backend `localhost:3001`, frontend `localhost:5173`.
+
+### T012 — Automated and API checks (quickstart §1–§2; room `Y8LZ`)
+
+| Check | Result |
+|---|---|
+| Backend build + tests | ✅ 68 tests pass |
+| Frontend build + tests | ✅ 7 tests pass |
+| Restart in lobby | ✅ 409 "The game has not started yet." |
+| Guesser view after the round ends | ✅ `ended`, word `pizza`, history `['pizza']` |
+| Anonymous view after the round ends | ✅ word `pizza` |
+| Restart by non-host | ✅ 403 "Only the host can restart the game." |
+| Restart without participant id | ✅ 400 "A participant id is required to restart the game." |
+| Restart by host | ✅ `lobby`, drawer `null`, no word, no guesses, same host, Ann 0 / Ben 0 |
+| Duplicate restart | ✅ 409 "The game has not started yet." |
+| Next game's word | ✅ `pizza` → `castle`, matching the rule (count 0 → 1) |
+| Mid-round restart by host | ✅ `lobby` |
+
+### T013 — Two-tab checks and full cycle (quickstart §3; room `HNEU`, rule: sunflower then rocket)
+
+| Row | Result | Notes |
+|---|---|---|
+| 1 Round result | ✅ | Both tabs: "The word was sunflower"; Ben 100 above Ann 0; history "Ben: daisy", "Ben: SunFlower ✓" |
+| 2 Host's result | ✅ | "Play again" button |
+| 3 Guest's result | ✅ | "Waiting for the host to start a new game."; no button |
+| 4 No Exit Game | ✅ | Absent during the round and on the result; host had "End game and return to lobby" while playing |
+| 5 Play again | ✅ | Both tabs in the lobby within 2.5 s; Ann host, Ben listed |
+| 6 Start again | ✅ | Word `rocket` (rule prediction); scores 0; "No guesses yet."; Ben's form enabled |
+| 7 End game mid-round | ✅ | Both tabs back in the lobby |
+| SC-005 full cycle | ✅ | Create → join → play → result → restart → play → end, no page reloads |
+
+Observation: tab B showed two extra buttons ("Open chat", "Dismiss") outside the app's React root.
+They are not in the app source; most likely injected by a browser extension. Not interacted with.
+
+---
+
+## Dependencies & Execution Order
+
+- US1: T001 → T002; T003 → T004.
+- US2: T005 → T006 → T008; T007 alongside T006; T009 after T008; T010 after T004 and T009.
+- US3: T011 any time after T010 (same file).
+- Polish last.
+
+## Parallel Opportunities
+
+- Backend (T001, T005–T008) and frontend component work (T003) in parallel.
+- `[P]` test tasks alongside their implementation.
+
+## Implementation Strategy
+
+1. US1: the result is visible — Scenario 4's first half.
+2. US2: restart closes the loop — the README's full working-game flow.
+3. US3: remove the bounce.
+4. Validate, push; pre-evaluation should report all four feature folders complete.
+
+### Final end-to-end check (README "working game flow", progress-tracker item 16)
+
+Run on 2026-10-12 from a freshly started backend, four tabs: room R1 `DDDH` (Ann host, Ben) and
+room R2 `PNYN` (Zed host, Yara) open at the same time.
+
+| Step | Result | Notes |
+|---|---|---|
+| Create R1 as Ann; Ben joins typing `dddh` | ✅ | Ben in R1's lobby (the form upper-cases as you type; server-side case-insensitivity is covered by feature 001's API check) |
+| Create R2 as Zed; Yara joins | ✅ | Each lobby lists only its own players |
+| Start is host-only | ✅ | Ann has Start; Ben sees "Waiting for the host to start the game." |
+| Ann starts R1 | ✅ | R1 tabs on `/game`; R2 tabs stay in their lobby |
+| Draw and clear | ✅ | Stroke drawn under the pointer; Clear empties the canvas |
+| Ben guesses `burger`, then `PIZZA` | ✅ | Wrong then correct (word `pizza` = rule prediction for DDDH) |
+| Shared result | ✅ | Both R1 tabs: "The word was pizza", Ben 100 / Ann 0, history "Ben: burger", "Ben: PIZZA ✓" |
+| Ann restarts R1; Zed starts R2 at the same time | ✅ | R1 tabs back in the lobby with Ann (host) and Ben; R2 in its own round with word `rocket` (rule prediction for PNYN), scores 0, no guesses |

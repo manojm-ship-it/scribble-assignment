@@ -1,27 +1,51 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
+import { DrawingCanvas } from "../components/DrawingCanvas";
 import { GuessForm } from "../components/GuessForm";
 import { ResultPanel } from "../components/ResultPanel";
 import { RoomCodeBadge } from "../components/RoomCodeBadge";
+import { RoundResult } from "../components/RoundResult";
 import { Scoreboard } from "../components/Scoreboard";
-import { useRoomState } from "../state/roomStore";
+import { useRoomState, useRoomStore } from "../state/roomStore";
+import { useRoomPolling } from "../state/useRoomPolling";
 
 export function GamePage() {
   const navigate = useNavigate();
+  const roomStore = useRoomStore();
   const { room, participantId } = useRoomState();
+  const { refreshError } = useRoomPolling();
+  const [restartError, setRestartError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!room) {
       navigate("/", { replace: true });
+    } else if (room.status === "lobby") {
+      navigate("/lobby");
     }
   }, [navigate, room]);
+
+  async function handleRestart() {
+    try {
+      setRestartError(null);
+      await roomStore.restartGame();
+    } catch (caughtError) {
+      setRestartError(caughtError instanceof Error ? caughtError.message : "Unable to restart the game");
+    }
+  }
 
   if (!room) {
     return null;
   }
 
   const viewer = room.participants.find((participant) => participant.id === participantId) ?? null;
+  const drawer = room.participants.find((participant) => participant.id === room.drawerId) ?? null;
+  const isDrawer = participantId !== null && participantId === room.drawerId;
+  const isHost = participantId !== null && participantId === room.hostId;
+  const roundOver = room.status === "ended";
+  const hasGuessedCorrectly = room.guesses.some(
+    (guess) => guess.participantId === participantId && guess.correct
+  );
 
   return (
     <section className="panel game-page">
@@ -35,15 +59,34 @@ export function GamePage() {
 
       <div className="game-page__layout">
         <aside className="game-page__sidebar game-page__sidebar--left">
-          <Scoreboard />
-          <ResultPanel />
+          <Scoreboard participants={room.participants} participantId={participantId} />
+          <ResultPanel guesses={room.guesses} participants={room.participants} />
         </aside>
 
         <div className="game-page__main">
+          {roundOver ? (
+            <RoundResult
+              word={room.secretWord}
+              participants={room.participants}
+              action={
+                isHost ? (
+                  <button className="button button--primary" type="button" onClick={handleRestart}>
+                    Play again
+                  </button>
+                ) : (
+                  <p>Waiting for the host to start a new game.</p>
+                )
+              }
+            />
+          ) : null}
           <Card title="Canvas">
-            <div className="canvas-placeholder" style={{ minHeight: '500px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
-              Waiting for drawer...
-            </div>
+            {isDrawer ? (
+              <DrawingCanvas />
+            ) : (
+              <div className="canvas-placeholder" style={{ minHeight: '500px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+                {drawer ? `${drawer.name} is drawing` : "Waiting for drawer..."}
+              </div>
+            )}
           </Card>
         </div>
 
@@ -55,23 +98,51 @@ export function GamePage() {
                 <dd>{viewer?.name ?? "Unknown player"}</dd>
               </div>
               <div>
-                <dt>Status</dt>
-                <dd>Playing</dd>
+                <dt>Drawer</dt>
+                <dd>{drawer ? `${drawer.name} is drawing` : "Waiting for the drawer"}</dd>
+              </div>
+              <div>
+                <dt>Role</dt>
+                <dd>{isDrawer ? "You are the drawer" : "You are guessing"}</dd>
               </div>
             </dl>
           </Card>
 
+          <Card title="Secret Word">
+            {isDrawer && room.secretWord ? (
+              <p>
+                Your word: <strong>{room.secretWord}</strong>
+              </p>
+            ) : (
+              <p>The word is hidden. Watch the drawing and guess!</p>
+            )}
+          </Card>
+
           <Card title="Your Guess">
-            <GuessForm />
+            {roundOver ? (
+              <p>
+                <strong>Round over! Everyone guessed the word.</strong>
+              </p>
+            ) : null}
+            {refreshError ? <p className="form__error">{refreshError}</p> : null}
+            <GuessForm
+              disabled={isDrawer || roundOver || hasGuessedCorrectly}
+              onSubmit={async (text) => {
+                await roomStore.submitGuess(text);
+              }}
+            />
           </Card>
         </aside>
       </div>
 
-      <div className="button-row">
-        <button className="button button--secondary" onClick={() => navigate("/lobby")}>
-          Exit Game
-        </button>
-      </div>
+      {restartError ? <p className="form__error">{restartError}</p> : null}
+      {isHost && room.status === "playing" ? (
+        <div className="button-row">
+          <button className="button button--secondary" type="button" onClick={handleRestart}>
+            End game and return to lobby
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }

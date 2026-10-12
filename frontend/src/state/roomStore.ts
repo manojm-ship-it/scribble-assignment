@@ -13,6 +13,7 @@ export interface RoomState {
   room: RoomSnapshot | null;
   participantId: string | null;
   error: string | null;
+  notice: string | null;
   isLoading: boolean;
 }
 
@@ -23,6 +24,7 @@ class RoomStore {
     room: null,
     participantId: null,
     error: null,
+    notice: null,
     isLoading: false
   };
 
@@ -66,7 +68,8 @@ class RoomStore {
     this.setState({
       participantId: response.participantId,
       room: response.room,
-      error: null
+      error: null,
+      notice: null
     });
   }
 
@@ -74,6 +77,14 @@ class RoomStore {
     this.setState({
       room,
       error: null
+    });
+  }
+
+  clearRoom(notice: string) {
+    this.setState({
+      room: null,
+      participantId: null,
+      notice
     });
   }
 
@@ -87,6 +98,36 @@ class RoomStore {
     const response = await this.withLoading(() => api.joinRoom(code, playerName));
     this.setRoomSession(response);
     return response;
+  }
+
+  async startGame() {
+    if (!this.state.room || !this.state.participantId) {
+      return null;
+    }
+
+    const response = await api.startGame(this.state.room.code, this.state.participantId);
+    this.setRoomSnapshot(response.room);
+    return response.room;
+  }
+
+  async restartGame() {
+    if (!this.state.room || !this.state.participantId) {
+      return null;
+    }
+
+    const response = await api.restartGame(this.state.room.code, this.state.participantId);
+    this.setRoomSnapshot(response.room);
+    return response.room;
+  }
+
+  async submitGuess(text: string) {
+    if (!this.state.room || !this.state.participantId) {
+      return null;
+    }
+
+    const response = await api.submitGuess(this.state.room.code, this.state.participantId, text);
+    this.setRoomSnapshot(response.room);
+    return response.room;
   }
 
   async fetchRoom() {

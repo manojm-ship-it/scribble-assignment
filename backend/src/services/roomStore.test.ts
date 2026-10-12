@@ -1,5 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { createRoom, joinRoom } from "./roomStore.js";
+import {
+  createRoom,
+  getRoom,
+  joinRoom,
+  removeInactiveRooms,
+  restartGame,
+  ROOM_IDLE_LIMIT_MS,
+  saveRoom,
+  selectSecretWord,
+  startGame,
+  submitGuess,
+  toRoomSnapshot
+} from "./roomStore.js";
 
 describe("roomStore", () => {
   it("createRoom returns a room with a 4-character uppercase code", () => {
@@ -11,9 +23,374 @@ describe("roomStore", () => {
     expect(result.participantId).toBeDefined();
   });
 
-  it("joinRoom returns null for an unknown room code", () => {
-    const result = joinRoom("ZZZZ", "Bob");
+  it("createRoom records the creator as host and exposes hostId in the snapshot", () => {
+    const result = createRoom("Alice");
 
-    expect(result).toBeNull();
+    expect(result.room.hostId).toBe(result.participantId);
+    expect(result.room.status).toBe("lobby");
+    expect(toRoomSnapshot(result.room).hostId).toBe(result.participantId);
+  });
+
+  it("createRoom gives every active room a distinct code", () => {
+    const codes = new Set(Array.from({ length: 50 }, () => createRoom("Host").room.code));
+
+    expect(codes.size).toBe(50);
+  });
+
+  it("joinRoom adds a non-host participant to an existing room", () => {
+    const host = createRoom("Alice");
+    const guest = joinRoom(host.room.code, "Bob");
+
+    expect(guest.room.participants.map((participant) => participant.name)).toEqual(["Alice", "Bob"]);
+    expect(guest.room.hostId).toBe(host.participantId);
+    expect(guest.participantId).not.toBe(host.participantId);
+  });
+
+  it("joinRoom refuses an unknown room code with a clear message", () => {
+    expect(() => joinRoom("ZZZZ", "Bob")).toThrow("Room not found. Check the code and try again.");
+  });
+
+  it("joinRoom refuses a room whose game has already started", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+    const room = getRoom(host.room.code)!;
+    saveRoom({ ...room, status: "playing" });
+
+    expect(() => joinRoom(host.room.code, "Cara")).toThrow("This game has already started.");
+  });
+
+  it("startGame refuses a non-host", () => {
+    const host = createRoom("Alice");
+    const guest = joinRoom(host.room.code, "Bob");
+
+    expect(() => startGame(host.room.code, guest.participantId)).toThrow(
+      "Only the host can start the game."
+    );
+    expect(getRoom(host.room.code)?.status).toBe("lobby");
+  });
+
+  it("startGame refuses a participant id that is not in the room", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+
+    expect(() => startGame(host.room.code, "not-a-player")).toThrow(
+      "Only the host can start the game."
+    );
+  });
+
+  it("startGame refuses to start with fewer than 2 players", () => {
+    const host = createRoom("Alice");
+
+    expect(() => startGame(host.room.code, host.participantId)).toThrow(
+      "At least 2 players are needed to start."
+    );
+    expect(getRoom(host.room.code)?.status).toBe("lobby");
+  });
+
+  it("startGame moves the room to playing when the host starts with 2 players", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+
+    expect(startGame(host.room.code, host.participantId).status).toBe("playing");
+    expect(getRoom(host.room.code)?.status).toBe("playing");
+  });
+
+  it("startGame refuses a game that has already started", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+    startGame(host.room.code, host.participantId);
+
+    expect(() => startGame(host.room.code, host.participantId)).toThrow(
+      "This game has already started."
+    );
+  });
+
+  it("removeInactiveRooms removes a room idle for longer than 30 minutes", () => {
+    const host = createRoom("Alice");
+    const lastActiveAt = getRoom(host.room.code)!.lastActiveAt;
+
+    removeInactiveRooms(lastActiveAt + ROOM_IDLE_LIMIT_MS + 1);
+
+    expect(getRoom(host.room.code)).toBeNull();
+    expect(() => joinRoom(host.room.code, "Bob")).toThrow(
+      "Room not found. Check the code and try again."
+    );
+  });
+
+  it("removeInactiveRooms keeps a room active within the last 30 minutes", () => {
+    const host = createRoom("Alice");
+    const lastActiveAt = getRoom(host.room.code)!.lastActiveAt;
+
+    removeInactiveRooms(lastActiveAt + ROOM_IDLE_LIMIT_MS - 1000);
+
+    expect(getRoom(host.room.code)).not.toBeNull();
+  });
+
+  it("room isolation: actions in one room leave another room unchanged", () => {
+    const first = createRoom("Alice");
+    const second = createRoom("Zed");
+    const before = toRoomSnapshot(getRoom(second.room.code)!);
+
+    joinRoom(first.room.code, "Bob");
+    startGame(first.room.code, first.participantId);
+
+    expect(toRoomSnapshot(getRoom(second.room.code)!)).toEqual(before);
+    expect(getRoom(first.room.code)?.status).toBe("playing");
+  });
+
+  it.each([
+    ["ABCD", 0, "pizza"],
+    ["ABCD", 1, "castle"],
+    ["AAAA", 0, "rocket"]
+  ])("selectSecretWord(%s, %i) is %s", (code, gamesStarted, word) => {
+    expect(selectSecretWord(code, gamesStarted)).toBe(word);
+  });
+
+  it("selectSecretWord is repeatable and always returns a starter word", () => {
+    const starterWords = ["rocket", "pizza", "castle", "guitar", "sunflower"];
+
+    for (let gamesStarted = 0; gamesStarted < 10; gamesStarted += 1) {
+      const word = selectSecretWord("XY7Q", gamesStarted);
+      expect(selectSecretWord("XY7Q", gamesStarted)).toBe(word);
+      expect(starterWords).toContain(word);
+    }
+  });
+
+  it("startGame makes the host the drawer and picks the word by the rule", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+
+    const room = startGame(host.room.code, host.participantId);
+
+    expect(room.drawerId).toBe(host.participantId);
+    expect(room.secretWord).toBe(selectSecretWord(host.room.code, 0));
+    expect(room.gamesStarted).toBe(1);
+  });
+
+  it("a room in the lobby has no drawer and no secret word", () => {
+    const host = createRoom("Alice");
+
+    expect(host.room.drawerId).toBeNull();
+    expect(host.room.secretWord).toBeNull();
+  });
+
+  it("only the drawer's view contains the secret word", () => {
+    const host = createRoom("Alice");
+    const guest = joinRoom(host.room.code, "Bob");
+    const room = startGame(host.room.code, host.participantId);
+
+    expect(toRoomSnapshot(room, host.participantId).secretWord).toBe(room.secretWord);
+    expect(toRoomSnapshot(room, guest.participantId)).not.toHaveProperty("secretWord");
+    expect(toRoomSnapshot(room, "not-a-player")).not.toHaveProperty("secretWord");
+    expect(toRoomSnapshot(room)).not.toHaveProperty("secretWord");
+  });
+
+  it("the host's view of a lobby room has no secret word", () => {
+    const host = createRoom("Alice");
+
+    expect(toRoomSnapshot(host.room, host.participantId)).not.toHaveProperty("secretWord");
+  });
+
+  it("room views do not include the candidate word list or roles", () => {
+    const host = createRoom("Alice");
+    joinRoom(host.room.code, "Bob");
+    const snapshot = toRoomSnapshot(startGame(host.room.code, host.participantId), host.participantId);
+
+    expect(snapshot).not.toHaveProperty("availableWords");
+    expect(snapshot).not.toHaveProperty("roles");
+  });
+
+  function startedRoom(guesserNames: string[] = ["Bob"]) {
+    const host = createRoom("Alice");
+    const guesserIds = guesserNames.map((name) => joinRoom(host.room.code, name).participantId);
+    const room = startGame(host.room.code, host.participantId);
+
+    return { code: room.code, hostId: host.participantId, guesserIds, word: room.secretWord! };
+  }
+
+  function scoreOf(code: string, participantId: string) {
+    return getRoom(code)!.participants.find((participant) => participant.id === participantId)!.score;
+  }
+
+  it("submitGuess records a wrong guess and adds 0", () => {
+    const { code, guesserIds } = startedRoom();
+
+    const room = submitGuess(code, guesserIds[0], "definitely-wrong");
+
+    expect(room.guesses).toHaveLength(1);
+    expect(room.guesses[0]).toMatchObject({ participantId: guesserIds[0], text: "definitely-wrong", correct: false });
+    expect(scoreOf(code, guesserIds[0])).toBe(0);
+    expect(room.status).toBe("playing");
+  });
+
+  it("submitGuess compares case-insensitively and adds exactly 100", () => {
+    const { code, guesserIds, word } = startedRoom(["Bob", "Cara"]);
+
+    const room = submitGuess(code, guesserIds[0], word.toUpperCase());
+
+    expect(room.guesses[0].correct).toBe(true);
+    expect(scoreOf(code, guesserIds[0])).toBe(100);
+  });
+
+  it("submitGuess keeps internal spaces, so a split word is wrong", () => {
+    const { code, guesserIds, word } = startedRoom();
+
+    const room = submitGuess(code, guesserIds[0], `${word.slice(0, 2)} ${word.slice(2)}`);
+
+    expect(room.guesses[0].correct).toBe(false);
+  });
+
+  it("submitGuess refuses the drawer", () => {
+    const { code, hostId, word } = startedRoom();
+
+    expect(() => submitGuess(code, hostId, word)).toThrow("The drawer cannot guess.");
+  });
+
+  it("submitGuess refuses a second guess after a correct one", () => {
+    const { code, guesserIds, word } = startedRoom(["Bob", "Cara"]);
+    submitGuess(code, guesserIds[0], word);
+
+    expect(() => submitGuess(code, guesserIds[0], word)).toThrow("You already guessed the word.");
+    expect(scoreOf(code, guesserIds[0])).toBe(100);
+  });
+
+  it("submitGuess refuses guesses while the room is in the lobby", () => {
+    const host = createRoom("Alice");
+    const guest = joinRoom(host.room.code, "Bob");
+
+    expect(() => submitGuess(host.room.code, guest.participantId, "pizza")).toThrow(
+      "The round is not in progress."
+    );
+  });
+
+  it("submitGuess refuses a player who is not in the room", () => {
+    const { code, word } = startedRoom();
+
+    expect(() => submitGuess(code, "not-a-player", word)).toThrow("You are not a player in this room.");
+  });
+
+  it("the round ends when the only guesser is correct", () => {
+    const { code, guesserIds, word } = startedRoom();
+
+    expect(submitGuess(code, guesserIds[0], word).status).toBe("ended");
+    expect(() => submitGuess(code, guesserIds[0], "again")).toThrow("The round is not in progress.");
+  });
+
+  it("with two guessers the round ends only when both are correct", () => {
+    const { code, guesserIds, word } = startedRoom(["Bob", "Cara"]);
+
+    expect(submitGuess(code, guesserIds[0], word).status).toBe("playing");
+    expect(submitGuess(code, guesserIds[1], word).status).toBe("ended");
+  });
+
+  it("startGame resets scores and clears guesses", () => {
+    const { code, guesserIds, word } = startedRoom(["Bob", "Cara"]);
+    submitGuess(code, guesserIds[0], word);
+    const room = getRoom(code)!;
+    saveRoom({ ...room, status: "lobby" });
+
+    const restarted = startGame(code, room.hostId);
+
+    expect(restarted.guesses).toEqual([]);
+    expect(restarted.participants.every((participant) => participant.score === 0)).toBe(true);
+  });
+
+  it("while playing, correct guess text is hidden from every viewer; wrong guesses keep text", () => {
+    const { code, hostId, guesserIds, word } = startedRoom(["Bob", "Cara"]);
+    submitGuess(code, guesserIds[0], "nope");
+    const room = submitGuess(code, guesserIds[0], word);
+
+    for (const viewer of [hostId, ...guesserIds, undefined]) {
+      const guesses = toRoomSnapshot(room, viewer).guesses;
+      expect(guesses.map((guess) => guess.text)).toEqual(["nope", null]);
+      expect(guesses.map((guess) => guess.correct)).toEqual([false, true]);
+    }
+  });
+
+  it("after the round ends, correct guess text is revealed in submission order", () => {
+    const { code, guesserIds, word } = startedRoom(["Bob", "Cara"]);
+    submitGuess(code, guesserIds[1], "first");
+    submitGuess(code, guesserIds[0], word);
+    const room = submitGuess(code, guesserIds[1], word.toUpperCase());
+
+    expect(room.status).toBe("ended");
+    expect(toRoomSnapshot(room).guesses.map((guess) => [guess.participantId, guess.text])).toEqual([
+      [guesserIds[1], "first"],
+      [guesserIds[0], word],
+      [guesserIds[1], word.toUpperCase()]
+    ]);
+  });
+
+  it("once the round has ended, every viewer sees the secret word", () => {
+    const { code, guesserIds, word } = startedRoom();
+    const playing = getRoom(code)!;
+
+    expect(toRoomSnapshot(playing, guesserIds[0])).not.toHaveProperty("secretWord");
+
+    const ended = submitGuess(code, guesserIds[0], word);
+
+    for (const viewer of [guesserIds[0], "not-a-player", undefined]) {
+      expect(toRoomSnapshot(ended, viewer).secretWord).toBe(word);
+    }
+  });
+
+  it("restartGame refuses a non-host", () => {
+    const { code, guesserIds, word } = startedRoom();
+    submitGuess(code, guesserIds[0], word);
+
+    expect(() => restartGame(code, guesserIds[0])).toThrow("Only the host can restart the game.");
+    expect(getRoom(code)?.status).toBe("ended");
+  });
+
+  it("restartGame refuses a room that is still in the lobby", () => {
+    const host = createRoom("Alice");
+
+    expect(() => restartGame(host.room.code, host.participantId)).toThrow("The game has not started yet.");
+  });
+
+  it("restartGame from a finished round clears round state and keeps the players and host", () => {
+    const { code, hostId, guesserIds, word } = startedRoom(["Bob", "Cara"]);
+    submitGuess(code, guesserIds[0], "nope");
+    submitGuess(code, guesserIds[0], word);
+    submitGuess(code, guesserIds[1], word);
+    const before = getRoom(code)!;
+
+    const room = restartGame(code, hostId);
+
+    expect(room.status).toBe("lobby");
+    expect(room.drawerId).toBeNull();
+    expect(room.secretWord).toBeNull();
+    expect(room.guesses).toEqual([]);
+    expect(room.hostId).toBe(hostId);
+    expect(room.participants.map((participant) => [participant.id, participant.name])).toEqual(
+      before.participants.map((participant) => [participant.id, participant.name])
+    );
+    expect(room.participants.every((participant) => participant.score === 0)).toBe(true);
+  });
+
+  it("a second restart is refused because the room is already in the lobby", () => {
+    const { code, hostId, guesserIds, word } = startedRoom();
+    submitGuess(code, guesserIds[0], word);
+    restartGame(code, hostId);
+
+    expect(() => restartGame(code, hostId)).toThrow("The game has not started yet.");
+  });
+
+  it("the host can restart in the middle of a round", () => {
+    const { code, hostId, guesserIds } = startedRoom();
+    submitGuess(code, guesserIds[0], "nope");
+
+    expect(restartGame(code, hostId).status).toBe("lobby");
+  });
+
+  it("the next game after a restart uses the next word from the rule", () => {
+    const { code, hostId, guesserIds, word } = startedRoom();
+    submitGuess(code, guesserIds[0], word);
+    restartGame(code, hostId);
+
+    const second = startGame(code, hostId);
+
+    expect(word).toBe(selectSecretWord(code, 0));
+    expect(second.secretWord).toBe(selectSecretWord(code, 1));
   });
 });

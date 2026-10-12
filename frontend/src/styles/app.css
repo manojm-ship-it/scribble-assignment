@@ -566,3 +566,25 @@ input {
     justify-content: stretch;
   }
 }
+
+/* --- GUESS HISTORY --- */
+.guess-history {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* --- DRAWING CANVAS --- */
+.drawing-canvas {
+  display: grid;
+  gap: 12px;
+}
+
+.drawing-canvas__surface {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  touch-action: none;
+  cursor: crosshair;
+}
