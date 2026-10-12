@@ -123,7 +123,7 @@ describe("roomStore", () => {
     expect(getRoom(host.room.code)).not.toBeNull();
   });
 
-  it("actions in one room leave another room unchanged", () => {
+  it("room isolation: actions in one room leave another room unchanged", () => {
     const first = createRoom("Alice");
     const second = createRoom("Zed");
     const before = toRoomSnapshot(getRoom(second.room.code)!);

@@ -132,13 +132,49 @@ Web app: `backend/src/`, `frontend/src/` (plan.md, Project Structure)
 
 ## Phase 8: Polish & Validation
 
-- [ ] T027 Run quickstart §1 and §2 (automated and `curl` checks) and record results below
-- [ ] T028 Run quickstart §3 two-browser checks (rows 1–9) and record results below
-- [ ] T029 Run `temp/run-pr-checks.sh`; record any implementation deviations in plan.md "Deviations"
+- [x] T027 Run quickstart §1 and §2 (automated and `curl` checks) and record results below
+- [x] T028 Run quickstart §3 two-browser checks (rows 1–9) and record results below
+- [x] T029 Run `temp/run-pr-checks.sh`; record any implementation deviations in plan.md "Deviations"
 
 ## Validation Results
 
-_Filled in during T027–T029._
+Run on 2026-10-12, backend `localhost:3001`, frontend `localhost:5173` (no `VITE_API_URL`).
+
+### T027 — Automated and API checks (quickstart §1–§2)
+
+| Check | Result |
+|---|---|
+| Backend build + tests | ✅ 22 tests pass |
+| Frontend build + tests | ✅ 5 tests pass |
+| Create → `hostId` equals creator, status `lobby` | ✅ |
+| Join `ZZZZ` | ✅ 404 "Room not found. Check the code and try again." |
+| Join `AB` | ✅ 400 "Room codes are 4 letters or numbers." |
+| Join blank (`%20%20`) | ✅ 400 "Enter a room code." |
+| Join with lower-case code | ✅ joined (2 participants) |
+| Start by host alone | ✅ 400 "At least 2 players are needed to start." |
+| Start by guest | ✅ 403 "Only the host can start the game." |
+| Start without `participantId` | ❌ → ✅ returned Zod's "Required"; fixed in `b9700b8` ("A participant id is required to start the game.") |
+| Start by host with 2 players | ✅ 200, status `playing` |
+| Start again / late join | ✅ 409 "This game has already started." |
+| Fetch unknown room | ✅ 404 "This room is no longer available." |
+
+### T028 — Two-browser checks (quickstart §3; separate Chrome tabs, each holding its own player)
+
+| Row | Result | Notes |
+|---|---|---|
+| 1 Create as Ann | ✅ | Code `G3GC`; "Ann (you)" labelled host |
+| 2 Host alone | ✅ | Start disabled; "Waiting for at least 2 players." |
+| 3 Ben joins (lower-case code) | ✅ | Ben appeared in Ann's tab with no clicks |
+| 4 Guest view | ✅ | No Start button; "Waiting for the host to start the game." |
+| 5 Invalid joins | ✅ | Empty, `AB`, `ZZZZ` each showed its message; no crash |
+| 6 Host starts | ✅ | Both tabs on `/game` within 3 s |
+| 7 Late join | ✅ | "This game has already started." |
+| 8 Second room `UXUT` | ✅ | Cara visible in Zed's lobby within 2.5 s; room `G3GC` unchanged (status, host, players) |
+| 9 Backend down, then restarted | ❌ → ✅ | Lobby kept its state but showed the browser's raw "Failed to fetch"; fixed in `3025fd9` ("Can't reach the game server. Check your connection and try again."). After restart: "This room is no longer available." on the start screen |
+
+Test-harness note: the first row-9 attempt used `lsof -ti tcp:3001 | xargs kill`, which also
+killed Chrome's network process (it held client sockets on port 3001) and reloaded the tabs.
+Re-run with `-sTCP:LISTEN` so only the backend was stopped.
 
 ---
 

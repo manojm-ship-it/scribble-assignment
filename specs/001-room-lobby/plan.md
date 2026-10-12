@@ -155,5 +155,9 @@ Any difference found during implementation is recorded here and in `REFLECTION.m
   "room no longer available" message. Implementation showed that `error` also holds failed
   create/join messages, which would then reappear on the start screen. A dedicated `notice`
   field (cleared on the next create/join) is used instead. Behaviour matches the spec.
+- **Validation fixes (T027/T028).** Two FR-015/FR-008 gaps found during validation and fixed
+  with tests: a missing `participantId` on start returned Zod's default "Required"
+  (`b9700b8`), and network failures surfaced the browser's "Failed to fetch" (`3025fd9`).
+  `api.ts` now maps network failures to `ApiError(0, ...)` with a readable message.
 - **T003 + T008 committed together.** The new required `hostId` field does not compile until
   `createRoom` sets it, so both changes share one commit.
