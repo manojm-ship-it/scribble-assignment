@@ -75,4 +75,13 @@ describe("api service", () => {
       })
     );
   });
+
+  it("turns a network failure into a readable ApiError", async () => {
+    vi.mocked(fetch).mockRejectedValue(new TypeError("Failed to fetch"));
+
+    await expect(api.fetchRoom("ABCD")).rejects.toMatchObject({
+      status: 0,
+      message: "Can't reach the game server. Check your connection and try again.",
+    });
+  });
 });

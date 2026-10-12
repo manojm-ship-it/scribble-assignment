@@ -38,6 +38,8 @@ async function request<T>(path: string, init?: RequestInit) {
       ...(init?.headers ?? {})
     },
     ...init
+  }).catch(() => {
+    throw new ApiError(0, "Can't reach the game server. Check your connection and try again.");
   });
 
   if (!response.ok) {
