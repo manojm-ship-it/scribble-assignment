@@ -79,9 +79,9 @@ No setup tasks.
 
 **Independent test**: quickstart §3 rows 1–3.
 
-- [ ] T018 [US1] Create frontend/src/components/DrawingCanvas.tsx: an 800×500 `<canvas>` scaled to its container, drawing lines with pointer events (pointer capture; coordinates scaled by `canvas.width / rect.width`), plus a "Clear canvas" button that clears the whole surface (FR-001, FR-002, research R1)
-- [ ] T019 [US1] In frontend/src/pages/GamePage.tsx render `DrawingCanvas` for the drawer and the existing `canvas-placeholder` reading "<drawer name> is drawing" for guessers (FR-003)
-- [ ] T020 [P] [US1] Add canvas styles (`touch-action: none`, full width, border) to frontend/src/styles/app.css
+- [x] T018 [US1] Create frontend/src/components/DrawingCanvas.tsx: an 800×500 `<canvas>` scaled to its container, drawing lines with pointer events (pointer capture; coordinates scaled by `canvas.width / rect.width`), plus a "Clear canvas" button that clears the whole surface (FR-001, FR-002, research R1)
+- [x] T019 [US1] In frontend/src/pages/GamePage.tsx render `DrawingCanvas` for the drawer and the existing `canvas-placeholder` reading "<drawer name> is drawing" for guessers (FR-003)
+- [x] T020 [P] [US1] Add canvas styles (`touch-action: none`, full width, border) to frontend/src/styles/app.css
 
 **Checkpoint**: drawer can draw and clear; guessers see the placeholder.
 
