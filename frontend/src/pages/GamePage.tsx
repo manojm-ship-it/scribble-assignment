@@ -6,11 +6,13 @@ import { ResultPanel } from "../components/ResultPanel";
 import { RoomCodeBadge } from "../components/RoomCodeBadge";
 import { Scoreboard } from "../components/Scoreboard";
 import { useRoomState, useRoomStore } from "../state/roomStore";
+import { useRoomPolling } from "../state/useRoomPolling";
 
 export function GamePage() {
   const navigate = useNavigate();
   const roomStore = useRoomStore();
   const { room, participantId } = useRoomState();
+  const { refreshError } = useRoomPolling();
 
   useEffect(() => {
     if (!room) {
@@ -25,6 +27,10 @@ export function GamePage() {
   const viewer = room.participants.find((participant) => participant.id === participantId) ?? null;
   const drawer = room.participants.find((participant) => participant.id === room.drawerId) ?? null;
   const isDrawer = participantId !== null && participantId === room.drawerId;
+  const roundOver = room.status === "ended";
+  const hasGuessedCorrectly = room.guesses.some(
+    (guess) => guess.participantId === participantId && guess.correct
+  );
 
   return (
     <section className="panel game-page">
@@ -38,8 +44,8 @@ export function GamePage() {
 
       <div className="game-page__layout">
         <aside className="game-page__sidebar game-page__sidebar--left">
-          <Scoreboard />
-          <ResultPanel />
+          <Scoreboard participants={room.participants} participantId={participantId} />
+          <ResultPanel guesses={room.guesses} participants={room.participants} />
         </aside>
 
         <div className="game-page__main">
@@ -79,8 +85,10 @@ export function GamePage() {
           </Card>
 
           <Card title="Your Guess">
+            {roundOver ? <p className="status-line">Round over! Everyone guessed the word.</p> : null}
+            {refreshError ? <p className="form__error">{refreshError}</p> : null}
             <GuessForm
-              disabled={isDrawer}
+              disabled={isDrawer || roundOver || hasGuessedCorrectly}
               onSubmit={async (text) => {
                 await roomStore.submitGuess(text);
               }}

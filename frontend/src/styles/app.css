@@ -566,3 +566,9 @@ input {
     justify-content: stretch;
   }
 }
+
+/* --- GUESS HISTORY --- */
+.guess-history {
+  max-height: 320px;
+  overflow-y: auto;
+}

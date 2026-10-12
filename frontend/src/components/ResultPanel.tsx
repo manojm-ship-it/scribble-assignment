@@ -1,11 +1,34 @@
+import type { GuessView, Participant } from "../services/api";
 import { Card } from "./Card";
 
-export function ResultPanel() {
+interface ResultPanelProps {
+  guesses: GuessView[];
+  participants: Participant[];
+}
+
+function describeGuess(guess: GuessView, name: string) {
+  if (guess.text === null) {
+    return `${name} guessed the word!`;
+  }
+
+  return guess.correct ? `${name}: ${guess.text} ✓` : `${name}: ${guess.text}`;
+}
+
+export function ResultPanel({ guesses, participants }: ResultPanelProps) {
+  const nameOf = (id: string) =>
+    participants.find((participant) => participant.id === id)?.name ?? "Unknown player";
+
   return (
     <Card title="Activity">
-      <div className="placeholder-block" style={{ backgroundColor: '#f9fafb' }}>
-        <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>Game activity and guesses will appear here.</p>
-      </div>
+      {guesses.length === 0 ? (
+        <p>No guesses yet.</p>
+      ) : (
+        <ul className="player-list guess-history">
+          {guesses.map((guess) => (
+            <li key={guess.id}>{describeGuess(guess, nameOf(guess.participantId))}</li>
+          ))}
+        </ul>
+      )}
     </Card>
   );
 }
