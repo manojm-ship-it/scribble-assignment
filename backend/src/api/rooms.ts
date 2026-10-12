@@ -31,10 +31,6 @@ export function createRoomsRouter() {
       const { playerName } = joinRoomSchema.parse(request.body);
       const result = joinRoom(code, playerName);
 
-      if (!result) {
-        throw new HttpError(404, "Unable to join room");
-      }
-
       response.json({
         participantId: result.participantId,
         room: toRoomSnapshot(result.room, result.participantId)

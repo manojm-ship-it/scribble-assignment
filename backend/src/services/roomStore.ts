@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { HttpError } from "../api/schemas.js";
 import type { Participant, Room, RoomSnapshot } from "../models/game.js";
 import { STARTER_ROLES, STARTER_WORDS } from "../seed/starterData.js";
 
@@ -73,12 +74,17 @@ export function joinRoom(code: string, playerName?: string) {
   const room = rooms.get(code);
 
   if (!room) {
-    return null;
+    throw new HttpError(404, "Room not found. Check the code and try again.");
+  }
+
+  if (room.status !== "lobby") {
+    throw new HttpError(409, "This game has already started.");
   }
 
   const participant = createParticipant(playerName);
   room.participants.push(participant);
   room.updatedAt = now();
+  room.lastActiveAt = Date.now();
   rooms.set(room.code, room);
 
   return {

@@ -76,9 +76,9 @@ Web app: `backend/src/`, `frontend/src/` (plan.md, Project Structure)
 
 **Independent test**: quickstart §2 join calls and §3 rows 3 and 5.
 
-- [ ] T011 [US2] In backend/src/services/roomStore.ts make `joinRoom` throw `HttpError(404, "Room not found. Check the code and try again.")` for unknown codes and `HttpError(409, "This game has already started.")` when `status !== "lobby"`, and update `lastActiveAt`; simplify the join route in backend/src/api/rooms.ts accordingly (FR-006, research R3)
-- [ ] T012 [P] [US2] Add tests in backend/src/services/roomStore.test.ts: join adds a non-host participant; unknown code → 404 message; started room → 409 message
-- [ ] T013 [US2] In frontend/src/pages/JoinRoomPage.tsx trim the code and show "Enter a room code." without calling the API when it is empty (research R1)
+- [x] T011 [US2] In backend/src/services/roomStore.ts make `joinRoom` throw `HttpError(404, "Room not found. Check the code and try again.")` for unknown codes and `HttpError(409, "This game has already started.")` when `status !== "lobby"`, and update `lastActiveAt`; simplify the join route in backend/src/api/rooms.ts accordingly (FR-006, research R3)
+- [x] T012 [P] [US2] Add tests in backend/src/services/roomStore.test.ts: join adds a non-host participant; unknown code → 404 message; started room → 409 message
+- [x] T013 [US2] In frontend/src/pages/JoinRoomPage.tsx trim the code and show "Enter a room code." without calling the API when it is empty (research R1)
 
 **Checkpoint**: US2 independently testable.
 
